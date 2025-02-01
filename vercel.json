@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:match*",
+      "destination": "https://neteasecloudmusicapi-git-main-ariels-projects-206a787e.vercel.app//:match*"
+    }
+  ]
+}
