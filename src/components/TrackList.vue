@@ -53,6 +53,12 @@
         $t('contextMenu.copyUrl')
       }}</div>
       <div
+        v-if="isElectron && type !== 'cloudDisk'"
+        class="item"
+        @click="downloadRightClickedTrack"
+        >{{ $t('contextMenu.download') }}</div
+      >
+      <div
         v-if="extraContextMenuItem.includes('removeTrackFromCloudDisk')"
         class="item"
         @click="removeTrackFromCloudDisk"
@@ -61,15 +67,29 @@
     </ContextMenu>
 
     <div :style="listStyles">
-      <TrackListItem
+      <div
         v-for="(track, index) in tracks"
         :key="itemKey === 'id' ? track.id : `${track.id}${index}`"
-        :track-prop="track"
-        :track-no="index + 1"
-        :highlight-playing-track="highlightPlayingTrack"
-        @dblclick.native="playThisList(track.id || track.songId)"
-        @click.right.native="openMenu($event, track, index)"
-      />
+        class="track-row"
+        :class="{ 'select-mode': selectable }"
+      >
+        <input
+          v-if="selectable"
+          type="checkbox"
+          class="select-checkbox"
+          :checked="isSelected(track.id || track.songId)"
+          @click.stop="toggleSelect(track.id || track.songId)"
+        />
+        <TrackListItem
+          :track-prop="track"
+          :track-no="index + 1"
+          :highlight-playing-track="highlightPlayingTrack"
+          class="track-item"
+          @dblclick.native="onDblClick(track.id || track.songId)"
+          @click.native="onItemClick($event, track.id || track.songId)"
+          @click.right.native="openMenu($event, track, index)"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -79,6 +99,7 @@ import { mapActions, mapMutations, mapState } from 'vuex';
 import { addOrRemoveTrackFromPlaylist } from '@/api/playlist';
 import { cloudDiskTrackDelete } from '@/api/user';
 import { isAccountLoggedIn } from '@/utils/auth';
+import { openDownloadConfirm } from '@/utils/download';
 
 import TrackListItem from '@/components/TrackListItem.vue';
 import ContextMenu from '@/components/ContextMenu.vue';
@@ -141,9 +162,22 @@ export default {
       type: String,
       default: 'id',
     },
+    selectable: {
+      type: Boolean,
+      default: false,
+    },
+    selectedIds: {
+      type: Array,
+      default: () => [],
+    },
+    downloadSubFolder: {
+      type: String,
+      default: '',
+    },
   },
   data() {
     return {
+      isElectron: process.env.IS_ELECTRON,
       rightClickedTrack: {
         id: 0,
         name: '',
@@ -196,6 +230,27 @@ export default {
       };
       this.rightClickedTrackIndex = -1;
     },
+    isSelected(id) {
+      return this.selectedIds.includes(id);
+    },
+    toggleSelect(id) {
+      if (!id) return;
+      const next = this.selectedIds.includes(id)
+        ? this.selectedIds.filter(x => x !== id)
+        : [...this.selectedIds, id];
+      this.$emit('update:selected', next);
+    },
+    onItemClick(e, id) {
+      if (this.selectable) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.toggleSelect(id);
+      }
+    },
+    onDblClick(trackID) {
+      if (this.selectable) return;
+      this.playThisList(trackID);
+    },
     playThisList(trackID) {
       if (this.dbclickTrackFunc === 'default') {
         this.playThisListDefault(trackID);
@@ -234,6 +289,11 @@ export default {
     },
     like() {
       this.likeATrack(this.rightClickedTrack.id);
+    },
+    downloadRightClickedTrack() {
+      const t = this.rightClickedTrack;
+      if (!t || !t.id) return;
+      openDownloadConfirm([t], this.downloadSubFolder);
     },
     addTrackToPlaylist() {
       if (!isAccountLoggedIn()) {
@@ -309,4 +369,25 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.track-row {
+  display: contents;
+}
+.track-row.select-mode {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  .track-item {
+    flex: 1;
+    min-width: 0;
+  }
+}
+.select-checkbox {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: var(--color-primary);
+  flex-shrink: 0;
+  margin-left: 4px;
+}
+</style>

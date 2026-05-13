@@ -120,6 +120,46 @@
       </div>
       <div v-if="isElectron" class="item">
         <div class="left">
+          <div class="title">
+            {{ $t('settings.downloadBitrate.text') }}
+          </div>
+        </div>
+        <div class="right">
+          <select v-model="downloadBitrate">
+            <option value="128000">
+              {{ $t('settings.musicQuality.low') }} - 128Kbps
+            </option>
+            <option value="192000">
+              {{ $t('settings.musicQuality.medium') }} - 192Kbps
+            </option>
+            <option value="320000">
+              {{ $t('settings.musicQuality.high') }} - 320Kbps
+            </option>
+            <option value="flac">
+              {{ $t('settings.musicQuality.lossless') }} - FLAC
+            </option>
+            <option value="999000">Hi-Res</option>
+          </select>
+        </div>
+      </div>
+      <div v-if="isElectron" class="item">
+        <div class="left">
+          <div class="title">{{ $t('settings.downloadFolder.text') }}</div>
+          <div class="description folder-path" :title="downloadFolderDisplay">
+            {{ downloadFolderDisplay }}
+          </div>
+        </div>
+        <div class="right">
+          <button class="download-folder-btn" @click="openDownloadFolderInFs">
+            {{ $t('settings.downloadFolder.open') }}
+          </button>
+          <button class="download-folder-btn" @click="changeDownloadFolder">
+            {{ $t('settings.downloadFolder.change') }}
+          </button>
+        </div>
+      </div>
+      <div v-if="isElectron" class="item">
+        <div class="left">
           <div class="title"> {{ $t('settings.deviceSelector') }} </div>
         </div>
         <div class="right">
@@ -186,6 +226,45 @@
         <div class="right">
           <button @click="clearCache()">
             {{ $t('settings.clearSongsCache') }}
+          </button>
+        </div>
+      </div>
+      <div v-if="isElectron" class="item">
+        <div class="left">
+          <div class="title">{{ $t('settings.clearAppCaches.text') }}</div>
+          <div class="description">
+            {{ $t('settings.clearAppCaches.desc') }}
+          </div>
+        </div>
+        <div class="right">
+          <button @click="clearAppCachesClicked()">
+            {{ $t('settings.clearAppCaches.button') }}
+          </button>
+        </div>
+      </div>
+      <div class="item">
+        <div class="left">
+          <div class="title">{{ $t('settings.hiddenCards.text') }}</div>
+          <div class="description">
+            {{
+              $t('settings.hiddenCards.summary', {
+                playlist: hiddenCardsCount.playlist,
+                artist: hiddenCardsCount.artist,
+                album: hiddenCardsCount.album,
+              })
+            }}
+          </div>
+        </div>
+        <div class="right hidden-cards-actions">
+          <button @click="openHiddenCardsModal">
+            {{ $t('settings.hiddenCards.view') }}
+          </button>
+          <button
+            class="hidden-cards-clear"
+            :disabled="hiddenCardsTotal === 0"
+            @click="clearAllHiddenCards"
+          >
+            {{ $t('settings.hiddenCards.clearAll') }}
           </button>
         </div>
       </div>
@@ -787,11 +866,17 @@
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex';
+import { mapState, mapActions, mapMutations } from 'vuex';
 import { isLooseLoggedIn, doLogout } from '@/utils/auth';
 import { auth as lastfmAuth } from '@/api/lastfm';
 import { changeAppearance, bytesToSize } from '@/utils/common';
 import { countDBSize, clearDB } from '@/utils/db';
+import { clearAppCaches } from '@/utils/cache';
+import {
+  pickDownloadFolder,
+  openDownloadFolder,
+  getDefaultDownloadFolder,
+} from '@/utils/download';
 import pkg from '../../package.json';
 
 const electron =
@@ -821,10 +906,31 @@ export default {
         recording: false,
       },
       recordedShortcut: [],
+      defaultDownloadFolder: '',
     };
   },
   computed: {
     ...mapState(['player', 'settings', 'data', 'lastfm']),
+    hiddenCards() {
+      return (
+        (this.data && this.data.hiddenCards) || {
+          playlist: [],
+          artist: [],
+          album: [],
+        }
+      );
+    },
+    hiddenCardsCount() {
+      return {
+        playlist: (this.hiddenCards.playlist || []).length,
+        artist: (this.hiddenCards.artist || []).length,
+        album: (this.hiddenCards.album || []).length,
+      };
+    },
+    hiddenCardsTotal() {
+      const c = this.hiddenCardsCount;
+      return c.playlist + c.artist + c.album;
+    },
     isElectron() {
       return process.env.IS_ELECTRON;
     },
@@ -943,6 +1049,37 @@ export default {
         this.$store.commit('changeMusicQuality', value);
         this.clearCache();
       },
+    },
+    downloadBitrate: {
+      get() {
+        return String(this.settings.downloadBitrate ?? '320000');
+      },
+      set(value) {
+        this.$store.commit('updateSettings', {
+          key: 'downloadBitrate',
+          value,
+        });
+      },
+    },
+    downloadFolder: {
+      get() {
+        return this.settings.downloadFolder ?? '';
+      },
+      set(value) {
+        this.$store.commit('updateSettings', {
+          key: 'downloadFolder',
+          value: value || '',
+        });
+      },
+    },
+    downloadFolderDisplay() {
+      if (this.downloadFolder && this.downloadFolder.trim() !== '') {
+        return this.downloadFolder;
+      }
+      return (
+        this.defaultDownloadFolder ||
+        this.$t('settings.downloadFolder.defaultHint')
+      );
     },
     lyricFontSize: {
       get() {
@@ -1311,14 +1448,47 @@ export default {
   },
   created() {
     this.countDBSize('tracks');
-    if (process.env.IS_ELECTRON) this.getAllOutputDevices();
+    if (process.env.IS_ELECTRON) {
+      this.getAllOutputDevices();
+      this.loadDefaultDownloadFolder();
+    }
   },
   activated() {
     this.countDBSize('tracks');
-    if (process.env.IS_ELECTRON) this.getAllOutputDevices();
+    if (process.env.IS_ELECTRON) {
+      this.getAllOutputDevices();
+      this.loadDefaultDownloadFolder();
+    }
   },
   methods: {
     ...mapActions(['showToast']),
+    ...mapMutations(['updateModal', 'clearHiddenCards']),
+    openHiddenCardsModal() {
+      this.updateModal({
+        modalName: 'hiddenCardsModal',
+        key: 'show',
+        value: true,
+      });
+    },
+    clearAllHiddenCards() {
+      this.clearHiddenCards();
+    },
+    async loadDefaultDownloadFolder() {
+      try {
+        this.defaultDownloadFolder = await getDefaultDownloadFolder();
+      } catch (e) {
+        this.defaultDownloadFolder = '';
+      }
+    },
+    async changeDownloadFolder() {
+      const picked = await pickDownloadFolder();
+      if (picked) {
+        this.downloadFolder = picked;
+      }
+    },
+    async openDownloadFolderInFs() {
+      await openDownloadFolder(this.downloadFolder);
+    },
     getAllOutputDevices() {
       navigator.mediaDevices.enumerateDevices().then(devices => {
         this.allOutputDevices = devices.filter(device => {
@@ -1360,6 +1530,11 @@ export default {
       clearDB().then(() => {
         this.countDBSize();
       });
+    },
+    async clearAppCachesClicked() {
+      await clearAppCaches();
+      this.countDBSize();
+      this.showToast(this.$t('toast.appCachesCleared'));
     },
     lastfmConnect() {
       lastfmAuth();
@@ -1619,6 +1794,29 @@ button {
   &:active {
     transform: scale(0.94);
   }
+}
+
+button.download-folder-btn + button.download-folder-btn {
+  margin-left: 8px;
+}
+
+.right.hidden-cards-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  > button {
+    margin: 0;
+  }
+}
+
+.description.folder-path {
+  max-width: 360px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
+  font-size: 13px;
+  margin-top: 4px;
 }
 
 input.text-input.margin-right-0 {

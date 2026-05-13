@@ -4,6 +4,7 @@ import { registerGlobalShortcut } from '@/electron/globalShortcut';
 import cloneDeep from 'lodash/cloneDeep';
 import shortcuts from '@/utils/shortcuts';
 import { createMenu } from './menu';
+import { registerDownloadHandlers } from './download';
 import { isCreateTray, isMac } from '@/utils/platform';
 
 const clc = require('cli-color');
@@ -137,6 +138,8 @@ export function initIpcMain(win, store, trayEventEmitter) {
   // WIP: Do not enable logging as it has some issues in non-blocking I/O environment.
   // UNM.enableLogging(UNM.LoggingType.ConsoleEnv);
   const unmExecutor = new UNM.Executor();
+
+  registerDownloadHandlers(win);
 
   ipcMain.handle(
     'unblock-music',

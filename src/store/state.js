@@ -45,8 +45,19 @@ export default {
       show: false,
       afterCreateAddTrackID: 0,
     },
+    downloadConfirmModal: {
+      show: false,
+      tracks: [],
+      subFolder: '',
+    },
+    hiddenCardsModal: {
+      show: false,
+    },
   },
   dailyTracks: [],
+  downloads: {
+    tasks: [],
+  },
   lastfm: JSON.parse(localStorage.getItem('lastfm')) || {},
   player: JSON.parse(localStorage.getItem('player')),
   settings: JSON.parse(localStorage.getItem('settings')),

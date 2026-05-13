@@ -49,11 +49,15 @@
           {{ playlist.description }}
         </div>
         <div class="buttons">
-          <ButtonTwoTone icon-class="play" @click.native="playPlaylistByID()">
+          <ButtonTwoTone
+            v-if="!isSelectMode"
+            icon-class="play"
+            @click.native="playPlaylistByID()"
+          >
             {{ $t('common.play') }}
           </ButtonTwoTone>
           <ButtonTwoTone
-            v-if="playlist.creator.userId !== data.user.userId"
+            v-if="!isSelectMode && playlist.creator.userId !== data.user.userId"
             :icon-class="playlist.subscribed ? 'heart-solid' : 'heart'"
             :icon-button="true"
             :horizontal-padding="0"
@@ -66,6 +70,48 @@
           >
           </ButtonTwoTone>
           <ButtonTwoTone
+            v-if="isElectron && !isSelectMode"
+            icon-class="download"
+            color="grey"
+            @click.native="downloadAll"
+          >
+            {{ $t('common.downloadAll') }}
+          </ButtonTwoTone>
+          <ButtonTwoTone
+            v-if="isElectron && !isSelectMode"
+            color="grey"
+            @click.native="enterSelectMode"
+          >
+            {{ $t('common.select') }}
+          </ButtonTwoTone>
+          <ButtonTwoTone
+            v-if="isElectron && isSelectMode"
+            icon-class="download"
+            @click.native="downloadSelected"
+          >
+            {{ `${$t('common.downloadSelected')} (${selectedIds.length})` }}
+          </ButtonTwoTone>
+          <ButtonTwoTone
+            v-if="isElectron && isSelectMode"
+            color="grey"
+            @click.native="toggleSelectAll"
+          >
+            {{
+              selectedIds.length === filteredTracks.length &&
+              filteredTracks.length > 0
+                ? $t('common.deselectAll')
+                : $t('common.selectAll')
+            }}
+          </ButtonTwoTone>
+          <ButtonTwoTone
+            v-if="isElectron && isSelectMode"
+            color="grey"
+            @click.native="exitSelectMode"
+          >
+            {{ $t('common.cancelSelect') }}
+          </ButtonTwoTone>
+          <ButtonTwoTone
+            v-if="!isSelectMode"
             icon-class="more"
             :icon-button="true"
             :horizontal-padding="0"
@@ -171,6 +217,10 @@
       :extra-context-menu-item="
         isUserOwnPlaylist ? ['removeTrackFromPlaylist'] : []
       "
+      :selectable="isSelectMode"
+      :selected-ids="selectedIds"
+      :download-sub-folder="playlist.name"
+      @update:selected="onSelectedChange"
     />
 
     <div class="load-more">
@@ -236,6 +286,7 @@ import ContextMenu from '@/components/ContextMenu.vue';
 import TrackList from '@/components/TrackList.vue';
 import Cover from '@/components/Cover.vue';
 import Modal from '@/components/Modal.vue';
+import { openDownloadConfirm } from '@/utils/download';
 
 const specialPlaylist = {
   2829816518: {
@@ -347,6 +398,9 @@ export default {
   data() {
     return {
       show: false,
+      isElectron: process.env.IS_ELECTRON,
+      isSelectMode: false,
+      selectedIds: [],
       playlist: {
         id: 0,
         coverImgUrl: '',
@@ -540,6 +594,33 @@ export default {
       } else {
         this.$store.commit('enableScrolling', true);
       }
+    },
+    onSelectedChange(ids) {
+      this.selectedIds = ids;
+    },
+    enterSelectMode() {
+      this.isSelectMode = true;
+      this.selectedIds = [];
+    },
+    exitSelectMode() {
+      this.isSelectMode = false;
+      this.selectedIds = [];
+    },
+    toggleSelectAll() {
+      if (this.selectedIds.length === this.filteredTracks.length) {
+        this.selectedIds = [];
+      } else {
+        this.selectedIds = this.filteredTracks.map(t => t.id);
+      }
+    },
+    downloadAll() {
+      openDownloadConfirm(this.filteredTracks, this.playlist.name);
+    },
+    downloadSelected() {
+      const set = new Set(this.selectedIds);
+      const picked = this.filteredTracks.filter(t => set.has(t.id));
+      openDownloadConfirm(picked, this.playlist.name);
+      this.exitSelectMode();
     },
   },
 };

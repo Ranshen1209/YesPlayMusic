@@ -81,6 +81,10 @@
           :tracks="item.tracks"
           :type="'album'"
           :album-object="album"
+          :selectable="isSelectMode"
+          :selected-ids="selectedIds"
+          :download-sub-folder="album.name"
+          @update:selected="onSelectedChange"
         />
       </div>
     </div>
@@ -90,6 +94,10 @@
         :tracks="tracks"
         :type="'album'"
         :album-object="album"
+        :selectable="isSelectMode"
+        :selected-ids="selectedIds"
+        :download-sub-folder="album.name"
+        @update:selected="onSelectedChange"
       />
     </div>
     <div class="extra-info">
@@ -162,6 +170,7 @@ import TrackList from '@/components/TrackList.vue';
 import CoverRow from '@/components/CoverRow.vue';
 import Cover from '@/components/Cover.vue';
 import Modal from '@/components/Modal.vue';
+import { openDownloadConfirm } from '@/utils/download';
 
 export default {
   name: 'Album',
@@ -182,6 +191,9 @@ export default {
   data() {
     return {
       show: false,
+      isElectron: process.env.IS_ELECTRON,
+      isSelectMode: false,
+      selectedIds: [],
       album: {
         id: 0,
         picUrl: '',
@@ -324,6 +336,33 @@ export default {
     openInBrowser(id) {
       const url = `https://music.163.com/#/album?id=${id}`;
       window.open(url);
+    },
+    onSelectedChange(ids) {
+      this.selectedIds = ids;
+    },
+    enterSelectMode() {
+      this.isSelectMode = true;
+      this.selectedIds = [];
+    },
+    exitSelectMode() {
+      this.isSelectMode = false;
+      this.selectedIds = [];
+    },
+    toggleSelectAll() {
+      if (this.selectedIds.length === this.tracks.length) {
+        this.selectedIds = [];
+      } else {
+        this.selectedIds = this.tracks.map(t => t.id);
+      }
+    },
+    downloadAll() {
+      openDownloadConfirm(this.tracks, this.album.name);
+    },
+    downloadSelected() {
+      const set = new Set(this.selectedIds);
+      const picked = this.tracks.filter(t => set.has(t.id));
+      openDownloadConfirm(picked, this.album.name);
+      this.exitSelectMode();
     },
   },
 };

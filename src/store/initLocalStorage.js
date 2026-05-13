@@ -13,6 +13,8 @@ let localStorage = {
     musicLanguage: 'all',
     appearance: 'auto',
     musicQuality: 320000,
+    downloadBitrate: 320000,
+    downloadFolder: '',
     lyricFontSize: 28,
     outputDevice: 'default',
     showPlaylistsByAppleMusic: true,
@@ -46,6 +48,11 @@ let localStorage = {
     likedSongPlaylistID: 0,
     lastRefreshCookieDate: 0,
     loginMode: null,
+    hiddenCards: {
+      playlist: [],
+      artist: [],
+      album: [],
+    },
   },
 };
 

@@ -1,36 +1,50 @@
 <template>
-  <div class="cover-row" :style="rowStyles">
-    <div
-      v-for="item in items"
-      :key="item.id"
-      class="item"
-      :class="{ artist: type === 'artist' }"
-    >
-      <Cover
-        :id="item.id"
-        :image-url="getImageUrl(item)"
-        :type="type"
-        :play-button-size="type === 'artist' ? 26 : playButtonSize"
-      />
-      <div class="text">
-        <div v-if="showPlayCount" class="info">
-          <span class="play-count"
-            ><svg-icon icon-class="play" />{{
-              item.playCount | formatPlayCount
-            }}
-          </span>
-        </div>
-        <div class="title" :style="{ fontSize: subTextFontSize }">
-          <span v-if="isExplicit(item)" class="explicit-symbol"
-            ><ExplicitSymbol
-          /></span>
-          <span v-if="isPrivacy(item)" class="lock-icon">
-            <svg-icon icon-class="lock"
-          /></span>
-          <router-link :to="getTitleLink(item)">{{ item.name }}</router-link>
-        </div>
-        <div v-if="type !== 'artist' && subText !== 'none'" class="info">
-          <span v-html="getSubText(item)"></span>
+  <div class="cover-row-wrapper">
+    <ContextMenu v-if="hideable" ref="menu">
+      <div class="item" @click="hideRightClicked">{{
+        $t('contextMenu.hideCard')
+      }}</div>
+      <div class="item" @click="openRightClicked">{{
+        $t('contextMenu.openCard')
+      }}</div>
+      <div class="item" @click="copyRightClickedLink">{{
+        $t('contextMenu.copyUrl')
+      }}</div>
+    </ContextMenu>
+    <div class="cover-row" :style="rowStyles">
+      <div
+        v-for="item in items"
+        :key="item.id"
+        class="item"
+        :class="{ artist: type === 'artist' }"
+        @contextmenu="onContextMenu($event, item)"
+      >
+        <Cover
+          :id="item.id"
+          :image-url="getImageUrl(item)"
+          :type="type"
+          :play-button-size="type === 'artist' ? 26 : playButtonSize"
+        />
+        <div class="text">
+          <div v-if="showPlayCount" class="info">
+            <span class="play-count"
+              ><svg-icon icon-class="play" />{{
+                item.playCount | formatPlayCount
+              }}
+            </span>
+          </div>
+          <div class="title" :style="{ fontSize: subTextFontSize }">
+            <span v-if="isExplicit(item)" class="explicit-symbol"
+              ><ExplicitSymbol
+            /></span>
+            <span v-if="isPrivacy(item)" class="lock-icon">
+              <svg-icon icon-class="lock"
+            /></span>
+            <router-link :to="getTitleLink(item)">{{ item.name }}</router-link>
+          </div>
+          <div v-if="type !== 'artist' && subText !== 'none'" class="info">
+            <span v-html="getSubText(item)"></span>
+          </div>
         </div>
       </div>
     </div>
@@ -40,12 +54,16 @@
 <script>
 import Cover from '@/components/Cover.vue';
 import ExplicitSymbol from '@/components/ExplicitSymbol.vue';
+import ContextMenu from '@/components/ContextMenu.vue';
+import locale from '@/locale';
+import { mapActions, mapMutations } from 'vuex';
 
 export default {
   name: 'CoverRow',
   components: {
     Cover,
     ExplicitSymbol,
+    ContextMenu,
   },
   props: {
     items: { type: Array, required: true },
@@ -56,6 +74,12 @@ export default {
     columnNumber: { type: Number, default: 5 },
     gap: { type: String, default: '44px 24px' },
     playButtonSize: { type: Number, default: 22 },
+    hideable: { type: Boolean, default: false },
+  },
+  data() {
+    return {
+      rightClicked: null,
+    };
   },
   computed: {
     rowStyles() {
@@ -66,6 +90,37 @@ export default {
     },
   },
   methods: {
+    ...mapMutations(['hideCard']),
+    ...mapActions(['showToast']),
+    onContextMenu(e, item) {
+      if (!this.hideable) return;
+      this.rightClicked = item;
+      this.$refs.menu.openMenu(e);
+    },
+    closeMenu() {
+      this.rightClicked = null;
+    },
+    hideRightClicked() {
+      if (!this.rightClicked) return;
+      this.hideCard({ type: this.type, item: this.rightClicked });
+      this.$emit('card-hidden', {
+        type: this.type,
+        id: this.rightClicked.id,
+      });
+    },
+    openRightClicked() {
+      if (!this.rightClicked) return;
+      this.$router.push(this.getTitleLink(this.rightClicked));
+    },
+    copyRightClickedLink() {
+      if (!this.rightClicked) return;
+      const url = `https://music.163.com/#${this.getTitleLink(
+        this.rightClicked
+      )}`;
+      this.$copyText(url)
+        .then(() => this.showToast(locale.t('toast.copied')))
+        .catch(err => this.showToast(`${locale.t('toast.copyFailed')}${err}`));
+    },
     getSubText(item) {
       if (this.subText === 'copywriter') return item.copywriter;
       if (this.subText === 'description') return item.description;

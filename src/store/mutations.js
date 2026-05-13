@@ -26,6 +26,37 @@ export default {
   updateData(state, { key, value }) {
     state.data[key] = value;
   },
+  hideCard(state, { type, item }) {
+    if (!state.data.hiddenCards) {
+      state.data.hiddenCards = { playlist: [], artist: [], album: [] };
+    }
+    const list = state.data.hiddenCards[type] || [];
+    if (list.some(x => x.id === item.id)) return;
+    const minimal = {
+      id: item.id,
+      name: item.name,
+      picUrl: item.picUrl || item.coverImgUrl || item.img1v1Url || '',
+    };
+    state.data.hiddenCards = {
+      ...state.data.hiddenCards,
+      [type]: [...list, minimal],
+    };
+  },
+  unhideCard(state, { type, id }) {
+    if (!state.data.hiddenCards || !state.data.hiddenCards[type]) return;
+    state.data.hiddenCards = {
+      ...state.data.hiddenCards,
+      [type]: state.data.hiddenCards[type].filter(x => x.id !== id),
+    };
+  },
+  clearHiddenCards(state, type) {
+    if (!state.data.hiddenCards) return;
+    if (type) {
+      state.data.hiddenCards = { ...state.data.hiddenCards, [type]: [] };
+    } else {
+      state.data.hiddenCards = { playlist: [], artist: [], album: [] };
+    }
+  },
   togglePlaylistCategory(state, name) {
     const index = state.settings.enabledPlaylistCategories.findIndex(
       c => c === name
@@ -74,5 +105,47 @@ export default {
   },
   updateTitle(state, title) {
     state.title = title;
+  },
+  addDownloadTasks(state, tasks) {
+    if (!state.downloads) state.downloads = { tasks: [] };
+    const incoming = Array.isArray(tasks) ? tasks : [tasks];
+    const map = new Map(state.downloads.tasks.map(t => [t.id, t]));
+    for (const t of incoming) map.set(t.id, t);
+    state.downloads = { ...state.downloads, tasks: Array.from(map.values()) };
+  },
+  updateDownloadTask(state, { id, patch }) {
+    if (!state.downloads) state.downloads = { tasks: [] };
+    state.downloads = {
+      ...state.downloads,
+      tasks: state.downloads.tasks.map(t =>
+        t.id === id ? { ...t, ...patch } : t
+      ),
+    };
+  },
+  clearDownloadTasks(state, filter) {
+    if (!state.downloads) {
+      state.downloads = { tasks: [] };
+      return;
+    }
+    if (typeof filter === 'function') {
+      state.downloads = {
+        ...state.downloads,
+        tasks: state.downloads.tasks.filter(filter),
+      };
+    } else if (filter) {
+      state.downloads = {
+        ...state.downloads,
+        tasks: state.downloads.tasks.filter(t => t.status !== filter),
+      };
+    } else {
+      state.downloads = { ...state.downloads, tasks: [] };
+    }
+  },
+  removeDownloadTask(state, id) {
+    if (!state.downloads) return;
+    state.downloads = {
+      ...state.downloads,
+      tasks: state.downloads.tasks.filter(t => t.id !== id),
+    };
   },
 };

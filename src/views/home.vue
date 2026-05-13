@@ -21,8 +21,9 @@
       </div>
       <CoverRow
         :type="'playlist'"
-        :items="recommendPlaylist.items"
+        :items="visibleRecommendPlaylist"
         sub-text="copywriter"
+        :hideable="true"
       />
     </div>
     <div class="index-row">
@@ -37,7 +38,8 @@
       <CoverRow
         type="artist"
         :column-number="6"
-        :items="recommendArtists.items"
+        :items="visibleRecommendArtists"
+        :hideable="true"
       />
     </div>
     <div class="index-row">
@@ -47,8 +49,9 @@
       </div>
       <CoverRow
         type="album"
-        :items="newReleasesAlbum.items"
+        :items="visibleNewReleasesAlbum"
         sub-text="artist"
+        :hideable="true"
       />
     </div>
     <div class="index-row">
@@ -99,9 +102,30 @@ export default {
     };
   },
   computed: {
-    ...mapState(['settings']),
+    ...mapState(['settings', 'data']),
     byAppleMusic() {
       return byAppleMusic;
+    },
+    hiddenCards() {
+      return (
+        (this.data && this.data.hiddenCards) || {
+          playlist: [],
+          artist: [],
+          album: [],
+        }
+      );
+    },
+    visibleRecommendPlaylist() {
+      const ids = (this.hiddenCards.playlist || []).map(x => x.id);
+      return this.recommendPlaylist.items.filter(i => !ids.includes(i.id));
+    },
+    visibleRecommendArtists() {
+      const ids = (this.hiddenCards.artist || []).map(x => x.id);
+      return this.recommendArtists.items.filter(i => !ids.includes(i.id));
+    },
+    visibleNewReleasesAlbum() {
+      const ids = (this.hiddenCards.album || []).map(x => x.id);
+      return this.newReleasesAlbum.items.filter(i => !ids.includes(i.id));
     },
   },
   activated() {

@@ -120,6 +120,11 @@ const routes = [
     component: () => import('@/views/settings.vue'),
   },
   {
+    path: '/downloads',
+    name: 'downloads',
+    component: () => import('@/views/downloads.vue'),
+  },
+  {
     path: '/daily/songs',
     name: 'dailySongs',
     component: () => import('@/views/dailyTracks.vue'),

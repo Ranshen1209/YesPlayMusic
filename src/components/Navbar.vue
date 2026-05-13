@@ -25,6 +25,12 @@
           :class="{ active: $route.name === 'library' }"
           >{{ $t('nav.library') }}</router-link
         >
+        <router-link
+          v-if="isElectron"
+          to="/downloads"
+          :class="{ active: $route.name === 'downloads' }"
+          >{{ $t('nav.downloads') }}</router-link
+        >
       </div>
       <div class="right-part">
         <div class="search-box">
@@ -46,8 +52,8 @@
         <img
           class="avatar"
           :src="avatarUrl"
-          @click="showUserProfileMenu"
           loading="lazy"
+          @click="showUserProfileMenu"
         />
       </div>
     </nav>
@@ -102,6 +108,7 @@ export default {
       keywords: '',
       enableWin32Titlebar: false,
       enableLinuxTitlebar: false,
+      isElectron: process.env.IS_ELECTRON,
     };
   },
   computed: {
