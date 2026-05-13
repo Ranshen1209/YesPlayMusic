@@ -26,6 +26,7 @@ export default {
   home: {
     recommendPlaylist: 'Önerilen Çalma Listeier',
     recommendArtist: 'Önerilen Sanatçılar',
+    followedArtist: 'Takip Edilen Sanatçılar',
     newAlbum: 'Son Çıkan Albümler',
     seeMore: 'DAHA FAZLASI',
     charts: 'Listeler',
@@ -214,6 +215,15 @@ export default {
     cacheCount: 'Çerezlenen {song} Müzikler ({size})',
     showLyricsTranslation: 'Müzik sözlerinin çevirilerini göster',
     showPlaylistsByAppleMusic: "Apple Music'in Çalma Listelerini Göster",
+    homeSections: {
+      title: 'Ana sayfa bölümleri',
+      recommendPlaylist: 'Önerilen Çalma Listelerini Göster',
+      forYou: "For You'yu Göster",
+      recommendArtist: 'Önerilen Sanatçıları Göster',
+      followedArtists: 'Takip Edilen Sanatçıları Göster',
+      newAlbum: 'Son Çıkan Albümleri Göster',
+      charts: 'Listeleri Göster',
+    },
     enableDiscordRichPresence: 'Discord gösterimini aktifleştir',
     showLibraryDefault: 'Kitaplık Varsayılanını göster',
     subTitleDefault: 'Show Alias for Subtitle by default',

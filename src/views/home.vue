@@ -12,7 +12,11 @@
         :image-size="1024"
       />
     </div>
-    <div class="index-row">
+    <div
+      v-if="settings.showRecommendPlaylist !== false"
+      class="index-row"
+      :class="{ 'first-row': isFirstVisible('recommendPlaylist') }"
+    >
       <div class="title">
         {{ $t('home.recommendPlaylist') }}
         <router-link to="/explore?category=推荐歌单">{{
@@ -26,14 +30,22 @@
         :hideable="true"
       />
     </div>
-    <div class="index-row">
+    <div
+      v-if="settings.showForYou !== false"
+      class="index-row"
+      :class="{ 'first-row': isFirstVisible('forYou') }"
+    >
       <div class="title"> For You </div>
       <div class="for-you-row">
         <DailyTracksCard ref="DailyTracksCard" />
         <FMCard />
       </div>
     </div>
-    <div class="index-row">
+    <div
+      v-if="settings.showRecommendArtist !== false"
+      class="index-row"
+      :class="{ 'first-row': isFirstVisible('recommendArtist') }"
+    >
       <div class="title">{{ $t('home.recommendArtist') }}</div>
       <CoverRow
         type="artist"
@@ -42,7 +54,26 @@
         :hideable="true"
       />
     </div>
-    <div class="index-row">
+    <div
+      v-if="
+        settings.showFollowedArtists !== false && followedArtists.items.length
+      "
+      class="index-row"
+      :class="{ 'first-row': isFirstVisible('followedArtists') }"
+    >
+      <div class="title">{{ $t('home.followedArtist') }}</div>
+      <CoverRow
+        type="artist"
+        :column-number="6"
+        :items="visibleFollowedArtists"
+        :hideable="true"
+      />
+    </div>
+    <div
+      v-if="settings.showNewAlbum !== false"
+      class="index-row"
+      :class="{ 'first-row': isFirstVisible('newAlbum') }"
+    >
       <div class="title">
         {{ $t('home.newAlbum') }}
         <router-link to="/new-album">{{ $t('home.seeMore') }}</router-link>
@@ -54,7 +85,11 @@
         :hideable="true"
       />
     </div>
-    <div class="index-row">
+    <div
+      v-if="settings.showCharts !== false"
+      class="index-row"
+      :class="{ 'first-row': isFirstVisible('charts') }"
+    >
       <div class="title">
         {{ $t('home.charts') }}
         <router-link to="/explore?category=排行榜">{{
@@ -75,6 +110,8 @@
 import { toplists } from '@/api/playlist';
 import { toplistOfArtists } from '@/api/artist';
 import { newAlbums } from '@/api/album';
+import { likedArtists } from '@/api/user';
+import { isAccountLoggedIn } from '@/utils/auth';
 import { byAppleMusic } from '@/utils/staticData';
 import { getRecommendPlayList } from '@/utils/playList';
 import NProgress from 'nprogress';
@@ -98,6 +135,9 @@ export default {
       recommendArtists: {
         items: [],
         indexs: [],
+      },
+      followedArtists: {
+        items: [],
       },
     };
   },
@@ -123,6 +163,10 @@ export default {
       const ids = (this.hiddenCards.artist || []).map(x => x.id);
       return this.recommendArtists.items.filter(i => !ids.includes(i.id));
     },
+    visibleFollowedArtists() {
+      const ids = (this.hiddenCards.artist || []).map(x => x.id);
+      return this.followedArtists.items.filter(i => !ids.includes(i.id));
+    },
     visibleNewReleasesAlbum() {
       const ids = (this.hiddenCards.album || []).map(x => x.id);
       return this.newReleasesAlbum.items.filter(i => !ids.includes(i.id));
@@ -133,6 +177,33 @@ export default {
     this.$parent.$refs.scrollbar.restorePosition();
   },
   methods: {
+    isFirstVisible(section) {
+      const order = [
+        {
+          key: 'appleMusic',
+          visible: this.settings.showPlaylistsByAppleMusic !== false,
+        },
+        {
+          key: 'recommendPlaylist',
+          visible: this.settings.showRecommendPlaylist !== false,
+        },
+        { key: 'forYou', visible: this.settings.showForYou !== false },
+        {
+          key: 'recommendArtist',
+          visible: this.settings.showRecommendArtist !== false,
+        },
+        {
+          key: 'followedArtists',
+          visible:
+            this.settings.showFollowedArtists !== false &&
+            this.followedArtists.items.length > 0,
+        },
+        { key: 'newAlbum', visible: this.settings.showNewAlbum !== false },
+        { key: 'charts', visible: this.settings.showCharts !== false },
+      ];
+      const first = order.find(s => s.visible);
+      return first && first.key === section;
+    },
     loadData() {
       setTimeout(() => {
         if (!this.show) NProgress.start();
@@ -174,7 +245,21 @@ export default {
           this.topList.ids.includes(l.id)
         );
       });
+      this.loadFollowedArtists();
       this.$refs.DailyTracksCard.loadDailyTracks();
+    },
+    loadFollowedArtists() {
+      if (!isAccountLoggedIn()) {
+        this.followedArtists.items = [];
+        return;
+      }
+      likedArtists({ limit: 12 })
+        .then(result => {
+          this.followedArtists.items = (result && result.data) || [];
+        })
+        .catch(() => {
+          this.followedArtists.items = [];
+        });
     },
   },
 };

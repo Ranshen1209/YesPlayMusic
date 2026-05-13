@@ -648,6 +648,116 @@
         </div>
       </div>
 
+      <h3>{{ $t('settings.homeSections.title') }}</h3>
+      <div class="item">
+        <div class="left">
+          <div class="title">
+            {{ $t('settings.homeSections.recommendPlaylist') }}
+          </div>
+        </div>
+        <div class="right">
+          <div class="toggle">
+            <input
+              id="show-recommend-playlist"
+              v-model="showRecommendPlaylist"
+              type="checkbox"
+              name="show-recommend-playlist"
+            />
+            <label for="show-recommend-playlist"></label>
+          </div>
+        </div>
+      </div>
+      <div class="item">
+        <div class="left">
+          <div class="title">
+            {{ $t('settings.homeSections.forYou') }}
+          </div>
+        </div>
+        <div class="right">
+          <div class="toggle">
+            <input
+              id="show-for-you"
+              v-model="showForYou"
+              type="checkbox"
+              name="show-for-you"
+            />
+            <label for="show-for-you"></label>
+          </div>
+        </div>
+      </div>
+      <div class="item">
+        <div class="left">
+          <div class="title">
+            {{ $t('settings.homeSections.recommendArtist') }}
+          </div>
+        </div>
+        <div class="right">
+          <div class="toggle">
+            <input
+              id="show-recommend-artist"
+              v-model="showRecommendArtist"
+              type="checkbox"
+              name="show-recommend-artist"
+            />
+            <label for="show-recommend-artist"></label>
+          </div>
+        </div>
+      </div>
+      <div class="item">
+        <div class="left">
+          <div class="title">
+            {{ $t('settings.homeSections.followedArtists') }}
+          </div>
+        </div>
+        <div class="right">
+          <div class="toggle">
+            <input
+              id="show-followed-artists"
+              v-model="showFollowedArtists"
+              type="checkbox"
+              name="show-followed-artists"
+            />
+            <label for="show-followed-artists"></label>
+          </div>
+        </div>
+      </div>
+      <div class="item">
+        <div class="left">
+          <div class="title">
+            {{ $t('settings.homeSections.newAlbum') }}
+          </div>
+        </div>
+        <div class="right">
+          <div class="toggle">
+            <input
+              id="show-new-album"
+              v-model="showNewAlbum"
+              type="checkbox"
+              name="show-new-album"
+            />
+            <label for="show-new-album"></label>
+          </div>
+        </div>
+      </div>
+      <div class="item">
+        <div class="left">
+          <div class="title">
+            {{ $t('settings.homeSections.charts') }}
+          </div>
+        </div>
+        <div class="right">
+          <div class="toggle">
+            <input
+              id="show-charts"
+              v-model="showCharts"
+              type="checkbox"
+              name="show-charts"
+            />
+            <label for="show-charts"></label>
+          </div>
+        </div>
+      </div>
+
       <div class="item">
         <div class="left">
           <div class="title">{{ $t('settings.subTitleDefault') }}</div>
@@ -1129,6 +1239,72 @@ export default {
       set(value) {
         this.$store.commit('updateSettings', {
           key: 'showPlaylistsByAppleMusic',
+          value,
+        });
+      },
+    },
+    showRecommendPlaylist: {
+      get() {
+        return this.settings.showRecommendPlaylist !== false;
+      },
+      set(value) {
+        this.$store.commit('updateSettings', {
+          key: 'showRecommendPlaylist',
+          value,
+        });
+      },
+    },
+    showForYou: {
+      get() {
+        return this.settings.showForYou !== false;
+      },
+      set(value) {
+        this.$store.commit('updateSettings', {
+          key: 'showForYou',
+          value,
+        });
+      },
+    },
+    showRecommendArtist: {
+      get() {
+        return this.settings.showRecommendArtist !== false;
+      },
+      set(value) {
+        this.$store.commit('updateSettings', {
+          key: 'showRecommendArtist',
+          value,
+        });
+      },
+    },
+    showFollowedArtists: {
+      get() {
+        return this.settings.showFollowedArtists !== false;
+      },
+      set(value) {
+        this.$store.commit('updateSettings', {
+          key: 'showFollowedArtists',
+          value,
+        });
+      },
+    },
+    showNewAlbum: {
+      get() {
+        return this.settings.showNewAlbum !== false;
+      },
+      set(value) {
+        this.$store.commit('updateSettings', {
+          key: 'showNewAlbum',
+          value,
+        });
+      },
+    },
+    showCharts: {
+      get() {
+        return this.settings.showCharts !== false;
+      },
+      set(value) {
+        this.$store.commit('updateSettings', {
+          key: 'showCharts',
           value,
         });
       },

@@ -23,6 +23,7 @@ export default {
   home: {
     recommendPlaylist: '推薦歌單',
     recommendArtist: '推薦藝人',
+    followedArtist: '已關注藝人',
     newAlbum: '新曲上架',
     seeMore: '查看全部',
     charts: '排行榜',
@@ -217,6 +218,15 @@ export default {
     showLyricsTranslation: '顯示歌詞翻譯',
     minimizeToTray: '最小化到工作列角落',
     showPlaylistsByAppleMusic: '首頁顯示來自 Apple Music 的歌單',
+    homeSections: {
+      title: '首頁欄目顯示',
+      recommendPlaylist: '顯示推薦歌單',
+      forYou: '顯示 For You',
+      recommendArtist: '顯示推薦藝人',
+      followedArtists: '顯示已關注藝人',
+      newAlbum: '顯示新曲上架',
+      charts: '顯示排行榜',
+    },
     enableDiscordRichPresence: '啟用 Discord Rich Presence',
     enableGlobalShortcut: '啟用全域快捷鍵',
     showLibraryDefault: '啟動後顯示音樂庫',

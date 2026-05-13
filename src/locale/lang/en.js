@@ -26,6 +26,7 @@ export default {
   home: {
     recommendPlaylist: 'Recommended Playlists',
     recommendArtist: 'Recommended Artists',
+    followedArtist: 'Followed Artists',
     newAlbum: 'Latest Albums',
     seeMore: 'SEE MORE',
     charts: 'Charts',
@@ -219,6 +220,15 @@ export default {
     cacheCount: 'Cached {song} songs ({size})',
     showLyricsTranslation: 'Show lyrics translation',
     showPlaylistsByAppleMusic: 'Show playlists by Apple Music',
+    homeSections: {
+      title: 'Home page sections',
+      recommendPlaylist: 'Show Recommended Playlists',
+      forYou: 'Show For You',
+      recommendArtist: 'Show Recommended Artists',
+      followedArtists: 'Show Followed Artists',
+      newAlbum: 'Show Latest Albums',
+      charts: 'Show Charts',
+    },
     enableDiscordRichPresence: 'Enable Discord Rich Presence',
     enableGlobalShortcut: 'Enable Global Shortcut',
     showLibraryDefault: 'Show Library after App Launched',

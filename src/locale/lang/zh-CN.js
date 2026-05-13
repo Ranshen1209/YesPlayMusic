@@ -23,6 +23,7 @@ export default {
   home: {
     recommendPlaylist: '推荐歌单',
     recommendArtist: '推荐艺人',
+    followedArtist: '已关注艺人',
     newAlbum: '新专速递',
     seeMore: '查看全部',
     charts: '排行榜',
@@ -220,6 +221,15 @@ export default {
     cacheCount: '已缓存 {song} 首 ({size})',
     showLyricsTranslation: '显示歌词翻译',
     showPlaylistsByAppleMusic: '首页显示来自 Apple Music 的歌单',
+    homeSections: {
+      title: '首页栏目显示',
+      recommendPlaylist: '显示推荐歌单',
+      forYou: '显示 For You',
+      recommendArtist: '显示推荐艺人',
+      followedArtists: '显示已关注艺人',
+      newAlbum: '显示新专速递',
+      charts: '显示排行榜',
+    },
     enableDiscordRichPresence: '启用 Discord Rich Presence',
     enableGlobalShortcut: '启用全局快捷键',
     showLibraryDefault: '启动后显示音乐库',
