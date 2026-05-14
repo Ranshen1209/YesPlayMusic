@@ -2,6 +2,9 @@
 node_modules
 /dist
 
+# Lockfile from non-canonical package manager (project uses yarn)
+/package-lock.json
+
 # local env files
 .env
 .env.local
