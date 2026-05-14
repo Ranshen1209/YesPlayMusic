@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { pipeline } from 'stream';
 import { promisify } from 'util';
+import { writeTags } from './metadata';
 
 const clc = require('cli-color');
 const log = text => {
@@ -74,7 +75,7 @@ export function registerDownloadHandlers(win) {
 
   ipcMain.handle(
     'download:track',
-    async (_, { id, url, track, folder, subFolder }) => {
+    async (_, { id, url, track, folder, subFolder, meta }) => {
       if (!url) {
         return { id, ok: false, error: 'no_url' };
       }
@@ -98,7 +99,16 @@ export function registerDownloadHandlers(win) {
 
         await downloadOne(axios, { url, target });
         log(`downloaded: ${target}`);
-        return { id, ok: true, path: target };
+
+        let tagResult = null;
+        if (meta && meta.embed !== false) {
+          tagResult = await writeTags(target, meta);
+          if (tagResult && !tagResult.ok) {
+            log(`tag skipped [${id}]: ${tagResult.reason || 'unknown'}`);
+          }
+        }
+
+        return { id, ok: true, path: target, tag: tagResult };
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
         log(`download failed [${id}]: ${message}`);

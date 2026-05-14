@@ -171,6 +171,20 @@ export default {
       open: '打开',
       defaultHint: '默认 (音乐/YesPlayMusic)',
     },
+    downloadEmbedMetadata: {
+      text: '内嵌歌曲信息',
+      desc: '下载时把标题、艺术家、专辑、年份等信息写入文件标签',
+    },
+    downloadEmbedCover: {
+      text: '内嵌专辑封面',
+      desc: '下载时把专辑封面图片写入文件标签',
+    },
+    downloadCoverSize: {
+      text: '封面尺寸',
+      small: '512px',
+      medium: '1024px',
+      large: '原图',
+    },
     cacheLimit: {
       text: '歌曲缓存上限',
       none: '无限制',

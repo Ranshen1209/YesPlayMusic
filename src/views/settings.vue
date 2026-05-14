@@ -160,6 +160,71 @@
       </div>
       <div v-if="isElectron" class="item">
         <div class="left">
+          <div class="title">
+            {{ $t('settings.downloadEmbedMetadata.text') }}
+          </div>
+          <div class="description">
+            {{ $t('settings.downloadEmbedMetadata.desc') }}
+          </div>
+        </div>
+        <div class="right">
+          <div class="toggle">
+            <input
+              id="download-embed-metadata"
+              v-model="downloadEmbedMetadata"
+              type="checkbox"
+              name="download-embed-metadata"
+            />
+            <label for="download-embed-metadata"></label>
+          </div>
+        </div>
+      </div>
+      <div v-if="isElectron && downloadEmbedMetadata" class="item">
+        <div class="left">
+          <div class="title">
+            {{ $t('settings.downloadEmbedCover.text') }}
+          </div>
+          <div class="description">
+            {{ $t('settings.downloadEmbedCover.desc') }}
+          </div>
+        </div>
+        <div class="right">
+          <div class="toggle">
+            <input
+              id="download-embed-cover"
+              v-model="downloadEmbedCover"
+              type="checkbox"
+              name="download-embed-cover"
+            />
+            <label for="download-embed-cover"></label>
+          </div>
+        </div>
+      </div>
+      <div
+        v-if="isElectron && downloadEmbedMetadata && downloadEmbedCover"
+        class="item"
+      >
+        <div class="left">
+          <div class="title">
+            {{ $t('settings.downloadCoverSize.text') }}
+          </div>
+        </div>
+        <div class="right">
+          <select v-model="downloadCoverSize">
+            <option :value="512">
+              {{ $t('settings.downloadCoverSize.small') }}
+            </option>
+            <option :value="1024">
+              {{ $t('settings.downloadCoverSize.medium') }}
+            </option>
+            <option :value="0">
+              {{ $t('settings.downloadCoverSize.large') }}
+            </option>
+          </select>
+        </div>
+      </div>
+      <div v-if="isElectron" class="item">
+        <div class="left">
           <div class="title"> {{ $t('settings.deviceSelector') }} </div>
         </div>
         <div class="right">
@@ -1190,6 +1255,41 @@ export default {
         this.defaultDownloadFolder ||
         this.$t('settings.downloadFolder.defaultHint')
       );
+    },
+    downloadEmbedMetadata: {
+      get() {
+        return this.settings.downloadEmbedMetadata !== false;
+      },
+      set(value) {
+        this.$store.commit('updateSettings', {
+          key: 'downloadEmbedMetadata',
+          value: Boolean(value),
+        });
+      },
+    },
+    downloadEmbedCover: {
+      get() {
+        return this.settings.downloadEmbedCover !== false;
+      },
+      set(value) {
+        this.$store.commit('updateSettings', {
+          key: 'downloadEmbedCover',
+          value: Boolean(value),
+        });
+      },
+    },
+    downloadCoverSize: {
+      get() {
+        const v = this.settings.downloadCoverSize;
+        if (v === 0) return 0;
+        return Number(v) > 0 ? Number(v) : 1024;
+      },
+      set(value) {
+        this.$store.commit('updateSettings', {
+          key: 'downloadCoverSize',
+          value: Number(value) || 0,
+        });
+      },
     },
     lyricFontSize: {
       get() {

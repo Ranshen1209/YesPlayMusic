@@ -170,6 +170,20 @@ export default {
       open: 'Open',
       defaultHint: 'Default (Music/YesPlayMusic)',
     },
+    downloadEmbedMetadata: {
+      text: 'Embed Song Metadata',
+      desc: 'Write title, artist, album, year and other tags into the downloaded file',
+    },
+    downloadEmbedCover: {
+      text: 'Embed Album Cover',
+      desc: 'Embed the album cover image into the downloaded file',
+    },
+    downloadCoverSize: {
+      text: 'Cover Size',
+      small: '512px',
+      medium: '1024px',
+      large: 'Original',
+    },
     cacheLimit: {
       text: 'Songs Cache limit',
       none: 'None',

@@ -165,6 +165,20 @@ export default {
       open: 'Aç',
       defaultHint: 'Varsayılan (Music/YesPlayMusic)',
     },
+    downloadEmbedMetadata: {
+      text: 'Şarkı Bilgilerini Göm',
+      desc: 'İndirme sırasında başlık, sanatçı, albüm ve yıl bilgilerini dosya etiketlerine yaz',
+    },
+    downloadEmbedCover: {
+      text: 'Albüm Kapağını Göm',
+      desc: 'İndirilen dosyaya albüm kapağı resmini göm',
+    },
+    downloadCoverSize: {
+      text: 'Kapak Boyutu',
+      small: '512px',
+      medium: '1024px',
+      large: 'Orijinal',
+    },
     cacheLimit: {
       text: 'Şarkılar Önbellek sınırı',
       none: 'Yok',

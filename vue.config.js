@@ -86,7 +86,7 @@ module.exports = {
     // electron-builder的配置文件
     electronBuilder: {
       nodeIntegration: true,
-      externals: ['@unblockneteasemusic/rust-napi'],
+      externals: ['@unblockneteasemusic/rust-napi', 'node-id3', 'metaflac-js'],
       builderOptions: {
         productName: 'YesPlayMusic',
         copyright: 'Copyright © YesPlayMusic',
