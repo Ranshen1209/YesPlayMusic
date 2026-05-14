@@ -53,9 +53,8 @@ async function fetchCoverBuffer(url) {
     });
     const buffer = Buffer.from(response.data);
     if (buffer.length === 0) return null;
-    const contentType = String(
-      response.headers?.['content-type'] || ''
-    ).toLowerCase();
+    const headers = response.headers || {};
+    const contentType = String(headers['content-type'] || '').toLowerCase();
     const mime = contentType.includes('png') ? 'image/png' : 'image/jpeg';
     return { buffer, mime };
   } catch (err) {
