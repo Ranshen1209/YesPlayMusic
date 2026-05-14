@@ -80,7 +80,6 @@ function buildMeta(song, settings) {
   if (Array.isArray(song.tns) && song.tns.length > 0) {
     aliasParts.push(song.tns.filter(Boolean).join('; '));
   }
-  aliasParts.push('Downloaded by YesPlayMusic');
   const albumName = String(album.name || '');
   const compilation =
     /合辑|合集|精选集|Compilation/i.test(albumName) ||

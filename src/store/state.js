@@ -55,9 +55,25 @@ export default {
     },
   },
   dailyTracks: [],
-  downloads: {
-    tasks: [],
-  },
+  downloads: (() => {
+    const raw = JSON.parse(localStorage.getItem('downloads')) || {
+      tasks: [],
+    };
+    const tasks = Array.isArray(raw.tasks) ? raw.tasks : [];
+    return {
+      ...raw,
+      tasks: tasks.map(task =>
+        task && (task.status === 'pending' || task.status === 'downloading')
+          ? {
+              ...task,
+              status: 'failed',
+              error: 'interrupted',
+              finishedAt: task.finishedAt || Date.now(),
+            }
+          : task
+      ),
+    };
+  })(),
   lastfm: JSON.parse(localStorage.getItem('lastfm')) || {},
   player: JSON.parse(localStorage.getItem('player')),
   settings: JSON.parse(localStorage.getItem('settings')),
