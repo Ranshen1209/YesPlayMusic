@@ -17,6 +17,8 @@ let localStorage = {
     downloadFolder: '',
     downloadEmbedMetadata: true,
     downloadEmbedCover: true,
+    downloadEmbedLyric: true,
+    downloadSaveLrcFile: false,
     downloadCoverSize: 1024,
     lyricFontSize: 28,
     outputDevice: 'default',

@@ -175,6 +175,14 @@ export default {
       text: '內嵌專輯封面',
       desc: '下載時把專輯封面圖片寫入檔案標籤',
     },
+    downloadEmbedLyric: {
+      text: '內嵌歌詞',
+      desc: '下載時把 LRC 歌詞寫入音訊檔案標籤',
+    },
+    downloadSaveLrcFile: {
+      text: '同時儲存 .lrc 檔案',
+      desc: '在音樂檔案旁生成同名 .lrc 歌詞檔',
+    },
     downloadCoverSize: {
       text: '封面尺寸',
       small: '512px',

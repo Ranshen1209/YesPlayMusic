@@ -178,6 +178,14 @@ export default {
       text: 'Embed Album Cover',
       desc: 'Embed the album cover image into the downloaded file',
     },
+    downloadEmbedLyric: {
+      text: 'Embed Lyrics',
+      desc: 'Write LRC lyrics into the downloaded audio file tags',
+    },
+    downloadSaveLrcFile: {
+      text: 'Also Save .lrc File',
+      desc: 'Generate a .lrc lyrics file next to the downloaded music',
+    },
     downloadCoverSize: {
       text: 'Cover Size',
       small: '512px',

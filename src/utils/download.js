@@ -41,12 +41,13 @@ function pickComposerFromLyric(lyricText) {
   return Array.from(composers).join('/');
 }
 
-async function fetchComposer(trackId) {
+async function fetchLyric(trackId) {
   try {
     const result = await getLyric(trackId);
-    return pickComposerFromLyric(result?.lrc?.lyric || '');
+    const lyric = result?.lrc?.lyric || '';
+    return { lyric, composer: pickComposerFromLyric(lyric) };
   } catch (e) {
-    return '';
+    return { lyric: '', composer: '' };
   }
 }
 
@@ -94,6 +95,8 @@ function buildMeta(song, settings) {
   return {
     embed: true,
     embedCover: settings?.downloadEmbedCover !== false,
+    embedLyric: settings?.downloadEmbedLyric !== false,
+    saveLrcFile: settings?.downloadSaveLrcFile === true,
     title: song.name || '',
     artist: artists.join('/'),
     album: albumName,
@@ -108,6 +111,7 @@ function buildMeta(song, settings) {
     discTotal: '',
     compilation: Boolean(compilation),
     coverUrl,
+    lyric: '',
   };
 }
 
@@ -136,8 +140,11 @@ async function buildMetaForTrack(trackId, settings) {
     const song = detail?.songs?.[0];
     const meta = buildMeta(song, settings);
     if (!meta || meta.embed === false) return meta;
-    if (!meta.composer) {
-      meta.composer = await fetchComposer(trackId);
+    const needLyric = meta.embedLyric || meta.saveLrcFile;
+    if (!meta.composer || needLyric) {
+      const { lyric, composer } = await fetchLyric(trackId);
+      if (!meta.composer) meta.composer = composer;
+      if (needLyric) meta.lyric = lyric;
     }
     return meta;
   } catch (e) {

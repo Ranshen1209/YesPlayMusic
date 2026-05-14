@@ -88,6 +88,13 @@ function writeId3(filePath, meta, cover) {
     tags.userDefinedText = [{ description: 'COMPILATION', value: '1' }];
   }
 
+  if (meta.embedLyric !== false && meta.lyric) {
+    tags.unsynchronisedLyrics = {
+      language: 'XXX',
+      text: String(meta.lyric),
+    };
+  }
+
   if (cover && cover.buffer && cover.buffer.length > 0) {
     tags.image = {
       mime: cover.mime || 'image/jpeg',
@@ -136,6 +143,11 @@ function writeFlac(filePath, meta, cover) {
   flac.removeTag('COMPILATION');
   if (meta.compilation === true || meta.compilation === 1) {
     flac.setTag('COMPILATION=1');
+  }
+
+  flac.removeTag('LYRICS');
+  if (meta.embedLyric !== false && meta.lyric) {
+    flac.setTag(`LYRICS=${String(meta.lyric)}`);
   }
 
   if (cover && cover.buffer && cover.buffer.length > 0) {

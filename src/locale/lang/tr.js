@@ -173,6 +173,14 @@ export default {
       text: 'Albüm Kapağını Göm',
       desc: 'İndirilen dosyaya albüm kapağı resmini göm',
     },
+    downloadEmbedLyric: {
+      text: 'Şarkı Sözlerini Göm',
+      desc: 'İndirilen ses dosyasının etiketlerine LRC şarkı sözlerini yaz',
+    },
+    downloadSaveLrcFile: {
+      text: '.lrc Dosyası Olarak da Kaydet',
+      desc: 'Müzik dosyasının yanında aynı adlı .lrc şarkı sözü dosyası oluştur',
+    },
     downloadCoverSize: {
       text: 'Kapak Boyutu',
       small: '512px',

@@ -200,6 +200,48 @@
           </div>
         </div>
       </div>
+      <div v-if="isElectron && downloadEmbedMetadata" class="item">
+        <div class="left">
+          <div class="title">
+            {{ $t('settings.downloadEmbedLyric.text') }}
+          </div>
+          <div class="description">
+            {{ $t('settings.downloadEmbedLyric.desc') }}
+          </div>
+        </div>
+        <div class="right">
+          <div class="toggle">
+            <input
+              id="download-embed-lyric"
+              v-model="downloadEmbedLyric"
+              type="checkbox"
+              name="download-embed-lyric"
+            />
+            <label for="download-embed-lyric"></label>
+          </div>
+        </div>
+      </div>
+      <div v-if="isElectron" class="item">
+        <div class="left">
+          <div class="title">
+            {{ $t('settings.downloadSaveLrcFile.text') }}
+          </div>
+          <div class="description">
+            {{ $t('settings.downloadSaveLrcFile.desc') }}
+          </div>
+        </div>
+        <div class="right">
+          <div class="toggle">
+            <input
+              id="download-save-lrc-file"
+              v-model="downloadSaveLrcFile"
+              type="checkbox"
+              name="download-save-lrc-file"
+            />
+            <label for="download-save-lrc-file"></label>
+          </div>
+        </div>
+      </div>
       <div
         v-if="isElectron && downloadEmbedMetadata && downloadEmbedCover"
         class="item"
@@ -1274,6 +1316,28 @@ export default {
       set(value) {
         this.$store.commit('updateSettings', {
           key: 'downloadEmbedCover',
+          value: Boolean(value),
+        });
+      },
+    },
+    downloadEmbedLyric: {
+      get() {
+        return this.settings.downloadEmbedLyric !== false;
+      },
+      set(value) {
+        this.$store.commit('updateSettings', {
+          key: 'downloadEmbedLyric',
+          value: Boolean(value),
+        });
+      },
+    },
+    downloadSaveLrcFile: {
+      get() {
+        return this.settings.downloadSaveLrcFile === true;
+      },
+      set(value) {
+        this.$store.commit('updateSettings', {
+          key: 'downloadSaveLrcFile',
           value: Boolean(value),
         });
       },

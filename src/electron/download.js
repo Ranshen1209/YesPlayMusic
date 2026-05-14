@@ -100,6 +100,15 @@ export function registerDownloadHandlers(win) {
         await downloadOne(axios, { url, target });
         log(`downloaded: ${target}`);
 
+        if (meta && meta.saveLrcFile === true && meta.lyric) {
+          const lrcPath = path.join(targetDir, `${baseName}.lrc`);
+          try {
+            await fs.promises.writeFile(lrcPath, String(meta.lyric), 'utf8');
+          } catch (e) {
+            log(`lrc sidecar write failed [${id}]: ${e.message}`);
+          }
+        }
+
         let tagResult = null;
         if (meta && meta.embed !== false) {
           tagResult = await writeTags(target, meta);

@@ -179,6 +179,14 @@ export default {
       text: '内嵌专辑封面',
       desc: '下载时把专辑封面图片写入文件标签',
     },
+    downloadEmbedLyric: {
+      text: '内嵌歌词',
+      desc: '下载时把 LRC 歌词写入音频文件标签',
+    },
+    downloadSaveLrcFile: {
+      text: '同时保存 .lrc 文件',
+      desc: '在音乐文件旁生成同名 .lrc 歌词文件',
+    },
     downloadCoverSize: {
       text: '封面尺寸',
       small: '512px',

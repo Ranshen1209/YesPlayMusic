@@ -70,12 +70,28 @@ A single class wraps `howler.js` and is the source of truth for playback state. 
 
 - `src/api/` — thin axios wrappers per Netease resource (`track.js`, `playlist.js`, `auth.js`, ...). All requests go through `src/utils/request.js`.
 - `src/store/` — Vuex 3 store (`state.js`, `mutations.js`, `actions.js`) plus two plugins:
-  - `plugins/localStorage.js` persists settings/data.
+  - `plugins/localStorage.js` persists `settings`, `data`, and `downloads` to `localStorage` on every mutation.
   - `plugins/sendSettings.js` (Electron only) mirrors settings to the main process.
 - `src/views/` — top-level routed pages; `src/router/index.js` is the single route table.
 - `src/components/` — shared SFCs. `Player.vue` is the playback UI bound to the player singleton; `Navbar.vue`, `ContextMenu.vue`, `TrackList.vue` are reused everywhere.
-- `src/electron/` — main-process modules: `ipcMain.js`, `menu.js`, `tray.js`, `touchBar.js` (macOS), `mpris.js` (Linux), `globalShortcut.js`, `services.js` (embedded API server). `background.js` (the electron-builder main entry) wires these up.
+- `src/electron/` — main-process modules: `ipcMain.js`, `menu.js`, `tray.js`, `touchBar.js` (macOS), `mpris.js` (Linux), `globalShortcut.js`, `services.js` (embedded API server), `download.js` + `metadata.js` (download pipeline with ID3/Vorbis tag writing). `background.js` (the electron-builder main entry) wires these up.
 - `src/utils/platform.js` exposes `isCreateTray`, `isCreateMpris`, etc. — use these flags rather than re-checking `process.platform`.
+
+### Download pipeline (`src/utils/download.js` ↔ `src/electron/download.js` ↔ `src/electron/metadata.js`)
+
+Downloads only run in the Electron build. Renderer flow: fetch song URL via `getMP3` → fetch full song detail (`getTrackDetail`) plus lyric (for composer) in parallel → assemble a `meta` payload → IPC to the main-process `download:track` handler. The handler streams the audio to disk, then `metadata.writeTags` dispatches by extension to `node-id3` (MP3/ID3v2) or `metaflac-js` (FLAC/Vorbis) and embeds the album cover (axios-fetched with `Referer: music.163.com`). Tag write failure is logged but never fails the download.
+
+Both `node-id3` and `metaflac-js` are declared in `vue.config.js` `electronBuilder.externals` so webpack does not bundle them. The download task list lives in `state.downloads.tasks` and is persisted via `plugins/localStorage.js`; on app boot, `state.js` re-hydrates and re-marks lingering `pending`/`downloading` tasks as `failed(interrupted)` so a refresh during transfer never leaves zombie rows.
+
+The main process is bundled with the same Webpack 4 + esbuild loader chain as the renderer, but **only targets ES2015**. Do not use ES2020 features in `src/electron/*` — optional-chaining-with-bracket-access (`obj?.['key']`) silently breaks the bundle.
+
+### CI / Release
+
+`.github/workflows/build.yaml` runs the Release job on every tag push (`v*`) and on `master` push, in a matrix over `macos-latest`, `windows-latest`, and `ubuntu-22.04`. `samuelmeuli/action-electron-builder@v1.6.0` invokes `yarn run vue-cli-service electron:build` per platform; when the ref is a `v*` tag it uploads artifacts to a draft GitHub Release on the repo named in `vue.config.js` `publish.owner` (currently `Ranshen1209/YesPlayMusic` — change before forking).
+
+Two CI quirks must be preserved:
+- A "Force git to use HTTPS for github SSH URLs" step uses **three** `git config --global --add url."https://github.com/".insteadOf <ssh-form>` calls. Without `--add` the entries overwrite each other; without all three forms `discord-rich-presence`'s git dependency on `discordjs/rpc` fails to resolve on runners with no SSH key.
+- No snap target. The `snap` target requires `SNAPCRAFT_STORE_CREDENTIALS`; it was removed (along with the `Install Snapcraft` step) so Linux can finish.
 
 ### Internationalization
 
