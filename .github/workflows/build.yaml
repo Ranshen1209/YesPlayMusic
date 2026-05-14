@@ -14,8 +14,6 @@ on:
 jobs:
   release:
     runs-on: ${{ matrix.os }}
-    env:
-      SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.snapcraft_token }}
 
     strategy:
       matrix:
@@ -48,10 +46,6 @@ jobs:
           sudo apt-get install --no-install-recommends -y rpm &&
           sudo apt-get install --no-install-recommends -y libarchive-tools &&
           sudo apt-get install --no-install-recommends -y libopenjp2-tools
-
-      - name: Install Snapcraft (on Ubuntu)
-        uses: samuelmeuli/action-snapcraft@v3
-        if: startsWith(matrix.os, 'ubuntu')
 
       - id: get_unm_version
         name: Get the installed UNM version
@@ -128,7 +122,6 @@ jobs:
             dist_electron/*.AppImage
             dist_electron/*.deb
             dist_electron/*.rpm
-            dist_electron/*.snap
             dist_electron/*.pacman
             dist_electron/*.tar.gz
           if-no-files-found: ignore

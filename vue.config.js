@@ -149,10 +149,6 @@ module.exports = {
               arch: ['x64'],
             },
             {
-              target: 'snap',
-              arch: ['x64'],
-            },
-            {
               target: 'pacman',
               arch: ['x64'],
             },
