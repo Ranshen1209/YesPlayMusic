@@ -100,17 +100,27 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: YesPlayMusic-mac
-          path: dist_electron/*-universal.dmg
+          path: |
+            dist_electron/*.dmg
+            dist_electron/*-mac.zip
           if-no-files-found: ignore
 
       - uses: actions/upload-artifact@v4
         with:
           name: YesPlayMusic-win
-          path: dist_electron/*Setup*.exe
+          path: |
+            dist_electron/*Setup*.exe
+            dist_electron/*-portable.exe
           if-no-files-found: ignore
 
       - uses: actions/upload-artifact@v4
         with:
           name: YesPlayMusic-linux
-          path: dist_electron/*.AppImage
+          path: |
+            dist_electron/*.AppImage
+            dist_electron/*.deb
+            dist_electron/*.rpm
+            dist_electron/*.snap
+            dist_electron/*.pacman
+            dist_electron/*.tar.gz
           if-no-files-found: ignore
