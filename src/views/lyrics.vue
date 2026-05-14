@@ -690,6 +690,7 @@ export default {
   background: var(--color-body-bg);
   display: flex;
   clip: rect(auto, auto, auto, auto);
+  contain: paint;
 }
 
 .lyrics-background {
@@ -708,6 +709,8 @@ export default {
   position: absolute;
   height: 100vh;
   width: 100vw;
+  transform: translateZ(0);
+  will-change: transform;
   .top-right,
   .bottom-left {
     z-index: 0;
@@ -716,6 +719,8 @@ export default {
     opacity: 0.6;
     position: absolute;
     background-size: cover;
+    transform: translateZ(0);
+    will-change: transform;
   }
 
   .top-right {
