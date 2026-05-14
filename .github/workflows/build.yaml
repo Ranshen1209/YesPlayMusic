@@ -33,6 +33,12 @@ jobs:
           node-version: 16
           cache: 'yarn'
 
+      - name: Force git to use HTTPS for github SSH URLs
+        run: |
+          git config --global url."https://github.com/".insteadOf "ssh://git@github.com/"
+          git config --global url."https://github.com/".insteadOf "git@github.com:"
+        shell: bash
+
       - name: Install RPM & Pacman (on Ubuntu)
         if: runner.os == 'Linux'
         run: |
