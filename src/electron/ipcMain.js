@@ -1,4 +1,4 @@
-import { app, dialog, globalShortcut, ipcMain } from 'electron';
+import { app, dialog, globalShortcut, ipcMain, nativeTheme } from 'electron';
 import UNM from '@unblockneteasemusic/rust-napi';
 import { registerGlobalShortcut } from '@/electron/globalShortcut';
 import cloneDeep from 'lodash/cloneDeep';
@@ -226,7 +226,18 @@ export function initIpcMain(win, store, trayEventEmitter) {
 
   ipcMain.on('set-vibrancy', (event, on) => {
     if (!isMac) return;
-    win.setVibrancy(on === true ? 'under-window' : null);
+    if (on === true) {
+      win.setVibrancy('under-window');
+      win.setBackgroundColor('#00000000');
+    } else {
+      win.setVibrancy(null);
+      const appearance = store.get('settings.appearance');
+      const isDark =
+        ((appearance === undefined || appearance === 'auto') &&
+          nativeTheme.shouldUseDarkColors) ||
+        appearance === 'dark';
+      win.setBackgroundColor(isDark ? '#222' : '#fff');
+    }
   });
 
   ipcMain.on('maximizeOrUnmaximize', () => {
