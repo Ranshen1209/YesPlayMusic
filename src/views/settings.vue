@@ -682,6 +682,23 @@
         </div>
       </div>
 
+      <div v-if="isElectron && isMac" class="item">
+        <div class="left">
+          <div class="title">{{ $t('settings.enableVibrancy') }}</div>
+        </div>
+        <div class="right">
+          <div class="toggle">
+            <input
+              id="enable-vibrancy"
+              v-model="enableVibrancy"
+              type="checkbox"
+              name="enable-vibrancy"
+            />
+            <label for="enable-vibrancy"></label>
+          </div>
+        </div>
+      </div>
+
       <h3>{{ $t('settings.others') }}</h3>
       <div v-if="isElectron && !isMac" class="item">
         <div class="left">
@@ -1086,7 +1103,7 @@
 import { mapState, mapActions, mapMutations } from 'vuex';
 import { isLooseLoggedIn, doLogout } from '@/utils/auth';
 import { auth as lastfmAuth } from '@/api/lastfm';
-import { changeAppearance, bytesToSize } from '@/utils/common';
+import { changeAppearance, bytesToSize, changeVibrancy } from '@/utils/common';
 import { countDBSize, clearDB } from '@/utils/db';
 import { clearAppCaches } from '@/utils/cache';
 import {
@@ -1612,6 +1629,18 @@ export default {
           key: 'showLibraryDefault',
           value,
         });
+      },
+    },
+    enableVibrancy: {
+      get() {
+        return this.settings.enableVibrancy || false;
+      },
+      set(value) {
+        this.$store.commit('updateSettings', {
+          key: 'enableVibrancy',
+          value,
+        });
+        changeVibrancy(value === true);
       },
     },
     cacheLimit: {
