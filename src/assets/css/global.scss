@@ -71,6 +71,14 @@ body {
   background-color: var(--color-body-bg);
 }
 
+body[data-vibrancy='on'] {
+  background-color: transparent;
+}
+
+body[data-vibrancy='on'] ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
 html {
   overflow-y: var(--html-overflow-y);
   min-width: 768px;
