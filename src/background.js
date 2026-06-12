@@ -176,6 +176,8 @@ class Background {
     const appearance = this.store.get('settings.appearance');
     const showLibraryDefault = this.store.get('settings.showLibraryDefault');
 
+    const enableVibrancy = isMac && this.store.get('settings.enableVibrancy') === true;
+
     const options = {
       width: this.store.get('window.width') || 1440,
       height: this.store.get('window.height') || 840,
@@ -194,12 +196,13 @@ class Background {
         enableRemoteModule: true,
         contextIsolation: false,
       },
-      backgroundColor:
-        ((appearance === undefined || appearance === 'auto') &&
-          nativeTheme.shouldUseDarkColors) ||
-        appearance === 'dark'
-          ? '#222'
-          : '#fff',
+      backgroundColor: enableVibrancy
+        ? '#00000000'
+        : ((appearance === undefined || appearance === 'auto') &&
+            nativeTheme.shouldUseDarkColors) ||
+          appearance === 'dark'
+        ? '#222'
+        : '#fff',
     };
 
     if (this.store.get('window.x') && this.store.get('window.y')) {
@@ -239,6 +242,10 @@ class Background {
         options.x = x;
         options.y = y;
       }
+    }
+
+    if (enableVibrancy) {
+      options.vibrancy = 'under-window';
     }
 
     this.window = new BrowserWindow(options);
