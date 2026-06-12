@@ -124,6 +124,14 @@ export function changeAppearance(appearance) {
     .setAttribute('content', appearance === 'dark' ? '#222' : '#fff');
 }
 
+export function changeVibrancy(on) {
+  document.body.setAttribute('data-vibrancy', on ? 'on' : 'off');
+  if (process.env.IS_ELECTRON === true) {
+    const { ipcRenderer } = window.require('electron');
+    ipcRenderer.send('set-vibrancy', on === true);
+  }
+}
+
 export function splitSoundtrackAlbumTitle(title) {
   let keywords = [
     'Music from the Original Motion Picture Score',
