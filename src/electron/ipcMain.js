@@ -224,6 +224,11 @@ export function initIpcMain(win, store, trayEventEmitter) {
     win.minimize();
   });
 
+  ipcMain.on('set-vibrancy', (event, on) => {
+    if (!isMac) return;
+    win.setVibrancy(on === true ? 'under-window' : null);
+  });
+
   ipcMain.on('maximizeOrUnmaximize', () => {
     win.isMaximized() ? win.unmaximize() : win.maximize();
   });
