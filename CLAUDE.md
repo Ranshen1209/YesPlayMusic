@@ -93,6 +93,16 @@ Two CI quirks must be preserved:
 - A "Force git to use HTTPS for github SSH URLs" step uses **three** `git config --global --add url."https://github.com/".insteadOf <ssh-form>` calls. Without `--add` the entries overwrite each other; without all three forms `discord-rich-presence`'s git dependency on `discordjs/rpc` fails to resolve on runners with no SSH key.
 - No snap target. The `snap` target requires `SNAPCRAFT_STORE_CREDENTIALS`; it was removed (along with the `Install Snapcraft` step) so Linux can finish.
 
+#### Cutting a release — always let CI build and upload (use `workflow_dispatch`)
+
+The release-upload step is gated on `release: ${{ startsWith(github.ref, 'refs/tags/v') }}` (build.yaml). Artifacts are uploaded **only when the run's ref is a `v*` tag** — a `master` push or a `workflow_dispatch` against a branch builds but uploads nothing.
+
+To publish a version: bump `package.json` `version` to match (the tag must equal the package version or `action-electron-builder` errors), commit, create the matching `v*` tag, then **run the workflow via `workflow_dispatch` against that tag** — e.g. `gh workflow run build.yaml --ref v0.4.19`. Let GitHub's runners produce and upload every platform's artifacts.
+
+**Do NOT shuttle build artifacts through the local machine** (download-from-CI then re-upload, or uploading a local `electron:build`). It is slow over a home uplink (an ~89 MB DMG can need ~10 min and time out), and a local build's hashes won't match the CI-generated `latest*.yml`/`.blockmap` auto-update manifests. Local `electron:build-mac` is for *smoke-testing* a build only, never for release assets.
+
+**Known race:** `action-electron-builder@v1.6.0` has no cross-job lock, so the three matrix jobs can each create their own *draft* Release for the same tag, splitting assets across two drafts (e.g. mac in one, linux in the other; windows in both). If this happens, pick the draft to keep, move the missing platform's assets in, publish it (`gh release edit <tag> --draft=false --latest`), and delete the duplicate(s). Re-dispatching is cleaner than hand-merging when feasible.
+
 ### Internationalization
 
 `src/locale/` holds JSON dictionaries; `vue-i18n` is configured at app bootstrap. The default language is inferred from `navigator.language` and persisted in `settings.lang` on first run. Supported: `en`, `zh-CN`, `zh-TW`, `tr`.
