@@ -248,7 +248,7 @@ export default {
     },
     enableDiscordRichPresence: 'Discord gösterimini aktifleştir',
     showLibraryDefault: 'Kitaplık Varsayılanını göster',
-    enableVibrancy: 'Buzlu Cam Arka Planı (yalnızca macOS, yeniden başlatma gerekir)',
+    enableVibrancy: 'Buzlu Cam Arka Planı (macOS, yeniden başlatma)',
     subTitleDefault: 'Show Alias for Subtitle by default',
     enableReversedMode: 'Enable Reversed Mode (Experimental)',
     enableCustomTitlebar: 'Enable custom title bar (Need restart)',
