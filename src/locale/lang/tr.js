@@ -94,6 +94,9 @@ export default {
     login: 'Giriş Yap',
     loginWithEmail: 'Email ile giriş yap',
     loginWithPhone: 'Phone ile giriş yap',
+    loginWithCookie: 'Cookie ile giriş yap',
+    cookiePlaceholder: 'MUSIC_U cookie değerini yapıştırın',
+    cookieNotice: `Tarayıcıda music.163.com adresini açıp giriş yaptıktan sonra geliştirici araçlarından (Application → Cookies) MUSIC_U değerini kopyalayın. Tüm cookie dizesini veya yalnızca MUSIC_U değerini yapıştırabilirsiniz.`,
     notice: `YesPlayMusic hesabınızın hiçbir bilgisini kaydetmeyeceğine dair söz veriyor<br />
       Şifren MD5 şifreleme ile yerel olarak şifrelenir ve daha sonra NetEase Müzik API'sine gönderilir<br />
       YesPlayMusic, NetEase Music'in resmi websitesi değildir, lütfen hesap bilgilerinizi girmeden önce dikkatlice düşününüz. Aynı zamanda, Kendi NetEase Musix API'nızı host etmek için <a href="https://github.com/qier222/YesPlayMusic">YesPlayMusic'in GitHub Repo'suna</a> gidebilirsiniz.`,

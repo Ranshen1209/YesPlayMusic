@@ -95,6 +95,9 @@ export default {
     login: '登录',
     loginWithEmail: '邮箱登录',
     loginWithPhone: '手机号登录',
+    loginWithCookie: 'Cookie 登录',
+    cookiePlaceholder: '粘贴你的 MUSIC_U Cookie',
+    cookieNotice: `在浏览器打开 music.163.com 并登录后，从开发者工具（应用 → Cookie）复制 MUSIC_U 的值。整段 Cookie 字符串或仅 MUSIC_U 值都可以粘贴。`,
     notice: `YesPlayMusic 承诺不会保存你的任何账号信息到云端。<br />
       你的密码会在本地进行 MD5 加密后再传输到网易云 API。<br />
       YesPlayMusic 并非网易云官方网站，输入账号信息前请慎重考虑。 你也可以前往

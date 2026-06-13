@@ -91,6 +91,9 @@ export default {
     login: '登入',
     loginWithEmail: '信箱登入',
     loginWithPhone: '手機號碼登入',
+    loginWithCookie: 'Cookie 登入',
+    cookiePlaceholder: '貼上你的 MUSIC_U Cookie',
+    cookieNotice: `在瀏覽器開啟 music.163.com 並登入後，從開發者工具（應用程式 → Cookie）複製 MUSIC_U 的值。整段 Cookie 字串或僅 MUSIC_U 值都可以貼上。`,
     notice: `YesPlayMusic 承諾不會保存您的任何帳戶資訊到雲端。<br />
         您的密碼會在本地進行 MD5 加密後再傳輸到網易雲 API。<br />
         YesPlayMusic 並非網易雲官方網站，輸入帳戶資訊前請慎重考慮。 您也可以前往

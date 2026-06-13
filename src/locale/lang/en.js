@@ -98,6 +98,9 @@ export default {
     login: 'Login',
     loginWithEmail: 'Login with Email',
     loginWithPhone: 'Login with Phone',
+    loginWithCookie: 'Login with Cookie',
+    cookiePlaceholder: 'Paste your MUSIC_U cookie',
+    cookieNotice: `Open music.163.com in a browser, log in, then copy the MUSIC_U cookie from DevTools (Application → Cookies). You can paste the full cookie string or just the MUSIC_U value.`,
     notice: `YesPlayMusic promises not to save any of your account information to the cloud.<br />
       Your password will be MD5 encrypted locally and then transmitted to NetEase Music API.<br />
       YesPlayMusic is not the official website of NetEase Music, please consider carefully before entering account information. You can also go to <a href="https://github.com/qier222/YesPlayMusic">YesPlayMusic's GitHub repository</a> to build and use the self-hosted NetEase Music API.`,
