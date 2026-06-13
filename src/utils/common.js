@@ -126,10 +126,6 @@ export function changeAppearance(appearance) {
 
 export function changeVibrancy(on) {
   document.body.setAttribute('data-vibrancy', on ? 'on' : 'off');
-  if (process.env.IS_ELECTRON === true) {
-    const { ipcRenderer } = window.require('electron');
-    ipcRenderer.send('set-vibrancy', on === true);
-  }
 }
 
 export function splitSoundtrackAlbumTitle(title) {

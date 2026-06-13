@@ -252,7 +252,7 @@ export default {
     enableDiscordRichPresence: '啟用 Discord Rich Presence',
     enableGlobalShortcut: '啟用全域快捷鍵',
     showLibraryDefault: '啟動後顯示音樂庫',
-    enableVibrancy: '毛玻璃背景（僅 macOS）',
+    enableVibrancy: '毛玻璃背景 (僅 macOS，重啟後生效)',
     subTitleDefault: '副標題使用別名',
     enableReversedMode: '啟用倒序播放功能 (實驗性功能)',
     enableCustomTitlebar: '啟用自訂標題列（重新啟動後生效）',

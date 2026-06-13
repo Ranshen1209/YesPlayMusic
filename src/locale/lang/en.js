@@ -254,7 +254,7 @@ export default {
     enableDiscordRichPresence: 'Enable Discord Rich Presence',
     enableGlobalShortcut: 'Enable Global Shortcut',
     showLibraryDefault: 'Show Library after App Launched',
-    enableVibrancy: 'Frosted Glass Background (macOS only)',
+    enableVibrancy: 'Frosted Glass Background (macOS only, restart required)',
     subTitleDefault: 'Show Alias for Subtitle by default',
     enableReversedMode: 'Enable Reversed Mode (Experimental)',
     enableCustomTitlebar: 'Enable custom title bar (Need restart)',

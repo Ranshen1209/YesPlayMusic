@@ -1103,7 +1103,7 @@
 import { mapState, mapActions, mapMutations } from 'vuex';
 import { isLooseLoggedIn, doLogout } from '@/utils/auth';
 import { auth as lastfmAuth } from '@/api/lastfm';
-import { changeAppearance, bytesToSize, changeVibrancy } from '@/utils/common';
+import { changeAppearance, bytesToSize } from '@/utils/common';
 import { countDBSize, clearDB } from '@/utils/db';
 import { clearAppCaches } from '@/utils/cache';
 import {
@@ -1640,7 +1640,6 @@ export default {
           key: 'enableVibrancy',
           value,
         });
-        changeVibrancy(value === true);
       },
     },
     cacheLimit: {
