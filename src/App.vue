@@ -1,9 +1,10 @@
 <template>
   <div id="app" :class="{ 'user-select-none': userSelectNone }">
     <Scrollbar v-show="!showLyrics" ref="scrollbar" />
-    <Navbar v-show="showNavbar" ref="navbar" />
+    <Navbar v-show="showNavbar && !showLyrics" ref="navbar" />
     <main
       ref="main"
+      v-show="!showLyrics"
       :style="{ overflow: enableScrolling ? 'auto' : 'hidden' }"
       @scroll="handleScroll"
     >
@@ -13,7 +14,11 @@
       <router-view v-if="!$route.meta.keepAlive"></router-view>
     </main>
     <transition name="slide-up">
-      <Player v-if="enablePlayer" v-show="showPlayer" ref="player" />
+      <Player
+        v-if="enablePlayer"
+        v-show="showPlayer && !showLyrics"
+        ref="player"
+      />
     </transition>
     <Toast />
     <ModalAddTrackToPlaylist v-if="isAccountLoggedIn" />

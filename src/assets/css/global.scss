@@ -73,6 +73,38 @@ body {
 
 body[data-vibrancy='on'] {
   background-color: transparent;
+
+  // 整窗统一毛玻璃：顶栏与底部播放条去掉自带的半透明底色和模糊，
+  // 直接透出后面的原生 vibrancy。
+  nav,
+  .player {
+    background-color: transparent;
+    backdrop-filter: none;
+  }
+
+  // 让主内容区夹在顶栏(64px)与播放条(64px)之间，
+  // 这样滚动时页面内容不会跑到两条 bar 背后透出来——bar 永远只显示纯玻璃。
+  main {
+    top: 64px;
+    bottom: 64px;
+    padding-top: 24px;
+    padding-bottom: 24px;
+  }
+
+  // 歌词页同样走整窗毛玻璃：去掉自身底色与专辑色背景层，透出原生 vibrancy。
+  // 浅色主题为深字配浅玻璃，本就清晰，不加光晕（白光晕会在文字周围结块成方框）。
+  .lyrics-page {
+    background: transparent;
+  }
+  .lyrics-page .lyrics-background,
+  .lyrics-page .gradient-background {
+    display: none;
+  }
+}
+
+// 深色主题是浅字，给一层深色光晕，保证在任意亮度的玻璃上都托得住。
+body[data-vibrancy='on'][data-theme='dark'] .lyrics-page {
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.65);
 }
 
 body[data-vibrancy='on'] ::-webkit-scrollbar-track {
