@@ -1,13 +1,6 @@
 <template>
   <div class="player" @click="handleClick" @mousedown="handleMouseDown">
-    <div
-      class="progress-bar"
-      :class="{
-        nyancat: settings.nyancatStyle,
-        'nyancat-stop': settings.nyancatStyle && !player.playing,
-      }"
-      @click.stop
-    >
+    <div class="progress-bar" @click.stop>
       <vue-slider
         v-model="player.progress"
         :min="0"

@@ -916,23 +916,6 @@
         </div>
       </div>
 
-      <div class="item">
-        <div class="left">
-          <div class="title" style="transform: scaleX(-1)">🐈️ 🏳️‍🌈</div>
-        </div>
-        <div class="right">
-          <div class="toggle">
-            <input
-              id="nyancat-style"
-              v-model="nyancatStyle"
-              type="checkbox"
-              name="nyancat-style"
-            />
-            <label for="nyancat-style"></label>
-          </div>
-        </div>
-      </div>
-
       <div v-if="isElectron">
         <h3>代理</h3>
         <div class="item">
@@ -1486,18 +1469,6 @@ export default {
       set(value) {
         this.$store.commit('updateSettings', {
           key: 'showCharts',
-          value,
-        });
-      },
-    },
-    nyancatStyle: {
-      get() {
-        if (this.settings.nyancatStyle === undefined) return false;
-        return this.settings.nyancatStyle;
-      },
-      set(value) {
-        this.$store.commit('updateSettings', {
-          key: 'nyancatStyle',
           value,
         });
       },
