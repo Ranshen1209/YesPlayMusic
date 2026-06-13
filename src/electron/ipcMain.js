@@ -1,4 +1,4 @@
-import { app, dialog, globalShortcut, ipcMain } from 'electron';
+import { app, dialog, globalShortcut, ipcMain, nativeTheme } from 'electron';
 import UNM from '@unblockneteasemusic/rust-napi';
 import { registerGlobalShortcut } from '@/electron/globalShortcut';
 import cloneDeep from 'lodash/cloneDeep';
@@ -230,6 +230,15 @@ export function initIpcMain(win, store, trayEventEmitter) {
 
   ipcMain.on('settings', (event, options) => {
     store.set('settings', options);
+    // macOS：切换主题时同步原生毛玻璃材质的明暗
+    if (isMac) {
+      nativeTheme.themeSource =
+        options.appearance === 'dark'
+          ? 'dark'
+          : options.appearance === 'light'
+          ? 'light'
+          : 'system';
+    }
     if (options.enableGlobalShortcut) {
       registerGlobalShortcut(win, store);
     } else {

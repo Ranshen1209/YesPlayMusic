@@ -176,7 +176,18 @@ class Background {
     const appearance = this.store.get('settings.appearance');
     const showLibraryDefault = this.store.get('settings.showLibraryDefault');
 
-    const enableVibrancy = isMac && this.store.get('settings.enableVibrancy') === true;
+    const enableVibrancy =
+      isMac && this.store.get('settings.enableVibrancy') === true;
+
+    // macOS：让原生毛玻璃材质的明暗跟随 App 主题，而不是系统外观
+    if (isMac) {
+      nativeTheme.themeSource =
+        appearance === 'dark'
+          ? 'dark'
+          : appearance === 'light'
+          ? 'light'
+          : 'system';
+    }
 
     const options = {
       width: this.store.get('window.width') || 1440,
@@ -196,14 +207,20 @@ class Background {
         enableRemoteModule: true,
         contextIsolation: false,
       },
-      backgroundColor: enableVibrancy
-        ? undefined
-        : ((appearance === undefined || appearance === 'auto') &&
-            nativeTheme.shouldUseDarkColors) ||
-          appearance === 'dark'
-        ? '#222'
-        : '#fff',
     };
+
+    // 非毛玻璃：按主题给一个不透明底色（避免加载时白/黑闪）。
+    // 毛玻璃：底色在下方 enableVibrancy 分支里设为全透明 '#00000000'，
+    // 让 webContents 透出后面的 NSVisualEffectView（Electron 13 实测：
+    // 省略 backgroundColor 不够，必须显式给透明色）。
+    if (!enableVibrancy) {
+      options.backgroundColor =
+        ((appearance === undefined || appearance === 'auto') &&
+          nativeTheme.shouldUseDarkColors) ||
+        appearance === 'dark'
+          ? '#222'
+          : '#fff';
+    }
 
     if (this.store.get('window.x') && this.store.get('window.y')) {
       let x = this.store.get('window.x');
@@ -247,6 +264,10 @@ class Background {
     if (enableVibrancy) {
       options.vibrancy = 'under-window';
       options.visualEffectState = 'active';
+      options.backgroundColor = '#00000000';
+      // macOS + Electron 13 实测：show:false 的窗口在随后 .show() 时会丢掉 vibrancy，
+      // 且无法再补回。毛玻璃时改用 show:true 创建（首帧是空的半透玻璃，而非白闪）。
+      options.show = true;
     }
 
     this.window = new BrowserWindow(options);
@@ -261,7 +282,13 @@ class Background {
           ? `${process.env.WEBPACK_DEV_SERVER_URL}/#/library`
           : process.env.WEBPACK_DEV_SERVER_URL
       );
-      if (!process.env.IS_TEST) this.window.webContents.openDevTools();
+      // 毛玻璃开启时，停靠(docked)的 DevTools 会破坏 macOS vibrancy 合成、
+      // 让窗口变成纯白，所以改用 detach 独立窗口打开。
+      if (!process.env.IS_TEST) {
+        this.window.webContents.openDevTools(
+          enableVibrancy ? { mode: 'detach' } : {}
+        );
+      }
     } else {
       createProtocol('app');
       this.window.loadURL(
