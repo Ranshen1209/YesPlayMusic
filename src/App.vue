@@ -1,10 +1,10 @@
 <template>
   <div id="app" :class="{ 'user-select-none': userSelectNone }">
-    <Scrollbar v-show="!showLyrics" ref="scrollbar" />
-    <Navbar v-show="showNavbar && !showLyrics" ref="navbar" />
+    <Scrollbar v-show="!showLyrics && !lyricsClosing" ref="scrollbar" />
+    <Navbar v-show="showNavbar && !showLyrics && !lyricsClosing" ref="navbar" />
     <main
+      v-show="!showLyrics && !lyricsClosing"
       ref="main"
-      v-show="!showLyrics"
       :style="{ overflow: enableScrolling ? 'auto' : 'hidden' }"
       @scroll="handleScroll"
     >
@@ -16,7 +16,7 @@
     <transition name="slide-up">
       <Player
         v-if="enablePlayer"
-        v-show="showPlayer && !showLyrics"
+        v-show="showPlayer && !showLyrics && !lyricsClosing"
         ref="player"
       />
     </transition>
@@ -25,7 +25,11 @@
     <ModalNewPlaylist v-if="isAccountLoggedIn" />
     <ModalDownloadConfirm v-if="isElectron" />
     <ModalHiddenCards />
-    <transition v-if="enablePlayer" name="slide-up">
+    <transition
+      v-if="enablePlayer"
+      name="slide-up"
+      @after-leave="lyricsClosing = false"
+    >
       <Lyrics v-show="showLyrics" />
     </transition>
   </div>
@@ -62,6 +66,8 @@ export default {
     return {
       isElectron: process.env.IS_ELECTRON, // true || undefined
       userSelectNone: false,
+      // 毛玻璃下歌词页透明，关闭时需等下滑动画结束再显示主界面，避免重影
+      lyricsClosing: false,
     };
   },
   computed: {
@@ -85,6 +91,15 @@ export default {
     },
     showNavbar() {
       return this.$route.name !== 'lastfmCallback';
+    },
+  },
+  watch: {
+    showLyrics(val) {
+      // 仅毛玻璃模式：歌词页关闭瞬间不立即显示主界面，
+      // 等下滑动画结束（@after-leave）再显示，避免透明歌词页透出主界面内容。
+      if (!val && document.body.getAttribute('data-vibrancy') === 'on') {
+        this.lyricsClosing = true;
+      }
     },
   },
   created() {
