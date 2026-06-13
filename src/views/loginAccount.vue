@@ -51,7 +51,7 @@
             </div>
           </div>
         </div>
-        <div v-show="mode !== 'qrCode'" class="input-box">
+        <div v-show="['phone', 'email'].includes(mode)" class="input-box">
           <div class="container" :class="{ active: inputFocus === 'password' }">
             <svg-icon icon-class="lock" />
             <div class="inputs">
@@ -66,6 +66,24 @@
                 @blur="inputFocus = ''"
                 @keyup.enter="login"
               />
+            </div>
+          </div>
+        </div>
+
+        <div v-show="mode === 'cookie'" class="input-box cookie-box">
+          <div class="container" :class="{ active: inputFocus === 'cookie' }">
+            <svg-icon icon-class="lock" />
+            <div class="inputs">
+              <textarea
+                id="cookie"
+                v-model="cookieInput"
+                rows="3"
+                :placeholder="
+                  inputFocus === 'cookie' ? '' : $t('login.cookiePlaceholder')
+                "
+                @focus="inputFocus = 'cookie'"
+                @blur="inputFocus = ''"
+              ></textarea>
             </div>
           </div>
         </div>
@@ -101,12 +119,19 @@
         <a v-show="mode !== 'qrCode'" @click="changeMode('qrCode')">
           二维码登录
         </a>
+        <span v-show="mode !== 'cookie'">|</span>
+        <a v-show="mode !== 'cookie'" @click="changeMode('cookie')">{{
+          $t('login.loginWithCookie')
+        }}</a>
       </div>
       <div
         v-show="mode !== 'qrCode'"
         class="notice"
         v-html="isElectron ? $t('login.noticeElectron') : $t('login.notice')"
       ></div>
+      <div v-show="mode === 'cookie'" class="notice">
+        {{ $t('login.cookieNotice') }}
+      </div>
     </div>
   </div>
 </template>
@@ -116,8 +141,9 @@ import QRCode from 'qrcode';
 import md5 from 'crypto-js/md5';
 import NProgress from 'nprogress';
 import { mapMutations } from 'vuex';
-import { setCookies } from '@/utils/auth';
+import { setCookies, removeCookie } from '@/utils/auth';
 import nativeAlert from '@/utils/nativeAlert';
+import { userAccount } from '@/api/user';
 import {
   loginWithPhone,
   loginWithEmail,
@@ -137,6 +163,7 @@ export default {
       password: '',
       smsCode: '',
       inputFocus: '',
+      cookieInput: '',
       qrCodeKey: '',
       qrCodeSvg: '',
       qrCodeCheckInterval: null,
@@ -149,7 +176,9 @@ export default {
     },
   },
   created() {
-    if (['phone', 'email', 'qrCode'].includes(this.$route.query.mode)) {
+    if (
+      ['phone', 'email', 'qrCode', 'cookie'].includes(this.$route.query.mode)
+    ) {
       this.mode = this.$route.query.mode;
     }
     this.getQrCodeKey();
@@ -185,6 +214,9 @@ export default {
       return true;
     },
     login() {
+      if (this.mode === 'cookie') {
+        return this.loginWithCookie();
+      }
       if (this.mode === 'phone') {
         this.processing = this.validatePhone();
         if (!this.processing) return;
@@ -231,6 +263,46 @@ export default {
         this.processing = false;
         nativeAlert(data.msg ?? data.message ?? '账号或密码错误，请检查');
       }
+    },
+    loginWithCookie() {
+      // 从粘贴内容中解析 MUSIC_U（及可选的 __csrf）。
+      // 支持粘贴整段 cookie 字符串，或仅粘贴 MUSIC_U 的值。
+      const raw = this.cookieInput.trim();
+      const musicUMatch = raw.match(/MUSIC_U=([^;,\s]+)/);
+      const musicU = musicUMatch ? musicUMatch[1] : raw;
+      const csrfMatch = raw.match(/__csrf=([^;,\s]+)/);
+      const csrf = csrfMatch ? csrfMatch[1] : undefined;
+      if (!musicU) {
+        nativeAlert('请粘贴有效的 MUSIC_U Cookie');
+        return;
+      }
+      this.processing = true;
+      setCookies(`MUSIC_U=${musicU}`);
+      if (csrf) setCookies(`__csrf=${csrf}`);
+      this.updateData({ key: 'loginMode', value: 'account' });
+      userAccount()
+        .then(result => {
+          if (result.code === 200 && result.profile && result.profile.userId) {
+            this.updateData({ key: 'user', value: result.profile });
+            this.$store.dispatch('fetchLikedPlaylist').then(() => {
+              this.$router.push({ path: '/library' });
+            });
+          } else {
+            this.rollbackCookieLogin();
+            nativeAlert('Cookie 无效或已过期，请重新获取');
+          }
+        })
+        .catch(error => {
+          this.rollbackCookieLogin();
+          nativeAlert(`登录失败，请检查 Cookie 是否正确\n${error}`);
+        });
+    },
+    rollbackCookieLogin() {
+      removeCookie('MUSIC_U');
+      removeCookie('__csrf');
+      this.updateData({ key: 'loginMode', value: null });
+      this.updateData({ key: 'user', value: {} });
+      this.processing = false;
     },
     getQrCodeKey() {
       return loginQrCodeKey().then(result => {
@@ -368,7 +440,8 @@ export default {
     width: 85%;
   }
 
-  input {
+  input,
+  textarea {
     font-size: 20px;
     border: none;
     background: transparent;
@@ -378,7 +451,8 @@ export default {
     color: var(--color-text);
   }
 
-  input::placeholder {
+  input::placeholder,
+  textarea::placeholder {
     color: var(--color-text);
     opacity: 0.38;
   }
@@ -393,9 +467,28 @@ export default {
   .active {
     background: var(--color-primary-bg);
     input,
+    textarea,
     .svg-icon {
       color: var(--color-primary);
     }
+  }
+}
+
+.cookie-box {
+  .container {
+    height: auto;
+    padding: 8px 0;
+    align-items: flex-start;
+  }
+  .svg-icon {
+    margin-top: 10px;
+  }
+  textarea {
+    font-size: 14px;
+    line-height: 1.5;
+    resize: none;
+    font-family: inherit;
+    word-break: break-all;
   }
 }
 
