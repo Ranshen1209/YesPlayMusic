@@ -123,7 +123,7 @@ export default {
   methods: {
     handleKeydown(e) {
       if (e.code === 'Space') {
-        if (e.target.tagName === 'INPUT') return false;
+        if (['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return false;
         if (this.$route.name === 'mv') return false;
         e.preventDefault();
         this.player.playOrPause();

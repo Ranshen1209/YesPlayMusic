@@ -111,7 +111,7 @@
         <a v-show="mode !== 'email'" @click="changeMode('email')">{{
           $t('login.loginWithEmail')
         }}</a>
-        <span v-show="mode === 'qrCode'">|</span>
+        <span v-show="['qrCode', 'cookie'].includes(mode)">|</span>
         <a v-show="mode !== 'phone'" @click="changeMode('phone')">{{
           $t('login.loginWithPhone')
         }}</a>
