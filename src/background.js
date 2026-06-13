@@ -197,7 +197,7 @@ class Background {
         contextIsolation: false,
       },
       backgroundColor: enableVibrancy
-        ? '#00000000'
+        ? undefined
         : ((appearance === undefined || appearance === 'auto') &&
             nativeTheme.shouldUseDarkColors) ||
           appearance === 'dark'
@@ -246,6 +246,8 @@ class Background {
 
     if (enableVibrancy) {
       options.vibrancy = 'under-window';
+      options.visualEffectState = 'active';
+      options.transparent = true;
     }
 
     this.window = new BrowserWindow(options);
