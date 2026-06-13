@@ -247,7 +247,6 @@ class Background {
     if (enableVibrancy) {
       options.vibrancy = 'under-window';
       options.visualEffectState = 'active';
-      options.transparent = true;
     }
 
     this.window = new BrowserWindow(options);
