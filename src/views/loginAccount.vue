@@ -125,7 +125,7 @@
         }}</a>
       </div>
       <div
-        v-show="mode !== 'qrCode'"
+        v-show="['phone', 'email'].includes(mode)"
         class="notice"
         v-html="isElectron ? $t('login.noticeElectron') : $t('login.notice')"
       ></div>
