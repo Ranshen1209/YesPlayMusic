@@ -95,10 +95,23 @@ export default {
   },
   watch: {
     showLyrics(val) {
-      // 仅毛玻璃模式：歌词页关闭瞬间不立即显示主界面，
+      // 打开歌词页：复位标志并清掉兜底定时器。
+      if (val) {
+        this.lyricsClosing = false;
+        clearTimeout(this.lyricsClosingTimer);
+        return;
+      }
+      // 关闭歌词页且处于毛玻璃（歌词页透明）时，延迟显示主界面，
       // 等下滑动画结束（@after-leave）再显示，避免透明歌词页透出主界面内容。
-      if (!val && document.body.getAttribute('data-vibrancy') === 'on') {
+      if (document.body.getAttribute('data-vibrancy') === 'on') {
         this.lyricsClosing = true;
+        // 兜底：若包裹歌词页的 transition 因 enablePlayer 变化被卸载，
+        // @after-leave 不会触发，用与 slide-up 动画等长的定时器强制复位，
+        // 避免主界面被永久隐藏。
+        clearTimeout(this.lyricsClosingTimer);
+        this.lyricsClosingTimer = setTimeout(() => {
+          this.lyricsClosing = false;
+        }, 450);
       }
     },
   },
