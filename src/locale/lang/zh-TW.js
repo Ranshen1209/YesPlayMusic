@@ -266,6 +266,11 @@ export default {
       on: '開啟',
       dynamic: '動態（GPU 占用較高）',
     },
+    lyricsTheme: {
+      text: '歌詞介面外觀',
+      light: '淺色',
+      dark: '深色',
+    },
     closeAppOption: {
       text: '關閉主面板時...',
       ask: '詢問',

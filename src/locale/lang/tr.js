@@ -261,6 +261,11 @@ export default {
       on: 'açık',
       dynamic: 'dinamik(Yüksek GPU kullanımı)',
     },
+    lyricsTheme: {
+      text: 'Şarkı Sözleri Sayfası Görünümü',
+      light: 'Aydınlık',
+      dark: 'Karanlık',
+    },
     closeAppOption: {
       text: 'Close App...',
       ask: 'Ask',

@@ -33,9 +33,9 @@
         </div>
         <div class="right">
           <select v-model="lang">
-            <option value="en">🇬🇧 English</option>
-            <option value="tr">🇹🇷 Türkçe</option>
-            <option value="zh-CN">🇨🇳 简体中文</option>
+            <option value="en">English</option>
+            <option value="tr">Türkçe</option>
+            <option value="zh-CN">简体中文</option>
             <option value="zh-TW">繁體中文</option>
           </select>
         </div>
@@ -47,12 +47,8 @@
         <div class="right">
           <select v-model="appearance">
             <option value="auto">{{ $t('settings.appearance.auto') }}</option>
-            <option value="light"
-              >🌞 {{ $t('settings.appearance.light') }}</option
-            >
-            <option value="dark"
-              >🌚 {{ $t('settings.appearance.dark') }}</option
-            >
+            <option value="light">{{ $t('settings.appearance.light') }}</option>
+            <option value="dark">{{ $t('settings.appearance.dark') }}</option>
           </select>
         </div>
       </div>
@@ -408,6 +404,21 @@
             <option value="blur"> 模糊封面 </option>
             <option value="dynamic">
               {{ $t('settings.lyricsBackground.dynamic') }}
+            </option>
+          </select>
+        </div>
+      </div>
+      <div class="item">
+        <div class="left">
+          <div class="title">{{ $t('settings.lyricsTheme.text') }}</div>
+        </div>
+        <div class="right">
+          <select v-model="lyricsTheme">
+            <option value="light">
+              {{ $t('settings.lyricsTheme.light') }}
+            </option>
+            <option value="dark">
+              {{ $t('settings.lyricsTheme.dark') }}
             </option>
           </select>
         </div>
@@ -1510,6 +1521,17 @@ export default {
         });
       },
     },
+    lyricsTheme: {
+      get() {
+        return this.settings.lyricsTheme || 'dark';
+      },
+      set(value) {
+        this.$store.commit('updateSettings', {
+          key: 'lyricsTheme',
+          value,
+        });
+      },
+    },
     showLyricsTime: {
       get() {
         return this.settings.showLyricsTime;
@@ -1989,6 +2011,19 @@ export default {
   display: flex;
   justify-content: center;
   margin-top: 32px;
+  --settings-glass-bg: rgba(245, 245, 247, 0.72);
+  --settings-glass-bg-hover: rgba(234, 239, 253, 0.78);
+  --settings-glass-bg-focus: rgba(234, 239, 253, 0.82);
+  --settings-glass-border: rgba(255, 255, 255, 0.48);
+  --settings-glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme='dark'] .settings-page {
+  --settings-glass-bg: rgba(50, 50, 50, 0.62);
+  --settings-glass-bg-hover: rgba(255, 255, 255, 0.12);
+  --settings-glass-bg-focus: rgba(189, 207, 255, 0.18);
+  --settings-glass-border: rgba(255, 255, 255, 0.1);
+  --settings-glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
 }
 .container {
   margin-top: 24px;
@@ -2012,7 +2047,11 @@ h3 {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: var(--color-secondary-bg);
+  background: var(--settings-glass-bg);
+  border: 1px solid var(--settings-glass-border);
+  box-shadow: var(--settings-glass-shadow);
+  backdrop-filter: saturate(180%) blur(28px);
+  -webkit-backdrop-filter: saturate(180%) blur(28px);
   color: var(--color-text);
   padding: 16px 20px;
   border-radius: 16px;
@@ -2071,7 +2110,7 @@ h3 {
       }
       &:hover {
         opacity: 1;
-        background: #eaeffd;
+        background: var(--settings-glass-bg-hover);
         color: #335eea;
       }
       &:active {
@@ -2107,22 +2146,30 @@ select {
   min-width: 192px;
   max-width: 600px;
   font-weight: 600;
-  border: none;
+  border: 1px solid var(--settings-glass-border);
   padding: 8px 12px 8px 12px;
   border-radius: 8px;
   color: var(--color-text);
-  background: var(--color-secondary-bg);
+  background: var(--settings-glass-bg);
+  box-shadow: var(--settings-glass-shadow);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  box-sizing: border-box;
   appearance: none;
   &:focus {
     outline: none;
     color: var(--color-primary);
-    background: var(--color-primary-bg);
+    background: var(--settings-glass-bg-focus);
   }
 }
 
 button {
   color: var(--color-text);
-  background: var(--color-secondary-bg);
+  background: var(--settings-glass-bg);
+  border: 1px solid var(--settings-glass-border);
+  box-shadow: var(--settings-glass-shadow);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
   padding: 8px 12px 8px 12px;
   font-weight: 600;
   border-radius: 8px;

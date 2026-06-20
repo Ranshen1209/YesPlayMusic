@@ -102,8 +102,8 @@ body[data-vibrancy='on'] {
   }
 }
 
-// 深色主题是浅字，给一层深色光晕，保证在任意亮度的玻璃上都托得住。
-body[data-vibrancy='on'][data-theme='dark'] .lyrics-page {
+// 歌词页深色主题是浅字，给一层深色光晕，保证在任意亮度的玻璃上都托得住。
+body[data-vibrancy='on'] .lyrics-page[data-theme='dark'] {
   text-shadow: 0 1px 10px rgba(0, 0, 0, 0.65);
 }
 

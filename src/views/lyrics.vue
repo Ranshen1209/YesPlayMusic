@@ -443,7 +443,7 @@ export default {
       return this.currentTrack?.al || { id: 0, name: 'unknown' };
     },
     theme() {
-      return this.settings.lyricsBackground === true ? 'dark' : 'auto';
+      return this.settings.lyricsTheme || 'dark';
     },
   },
   watch: {
@@ -693,12 +693,28 @@ export default {
   contain: paint;
 }
 
+.lyrics-page[data-theme='light'] {
+  --color-body-bg: #ffffff;
+  --color-text: #000000;
+  --color-primary: #335eea;
+  --color-primary-bg: #eaeffd;
+  --color-secondary-bg-for-transparent: rgba(209, 209, 214, 0.28);
+}
+
+.lyrics-page[data-theme='dark'] {
+  --color-body-bg: #222222;
+  --color-text: #ffffff;
+  --color-primary: #335eea;
+  --color-primary-bg: #bbcdff;
+  --color-secondary-bg-for-transparent: rgba(255, 255, 255, 0.08);
+}
+
 .lyrics-background {
   --contrast-lyrics-background: 75%;
   --brightness-lyrics-background: 150%;
 }
 
-[data-theme='dark'] .lyrics-background {
+.lyrics-page[data-theme='dark'] .lyrics-background {
   --contrast-lyrics-background: 125%;
   --brightness-lyrics-background: 50%;
 }

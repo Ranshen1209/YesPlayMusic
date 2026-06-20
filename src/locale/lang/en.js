@@ -268,6 +268,11 @@ export default {
       on: 'On',
       dynamic: 'Dynamic (High GPU usage)',
     },
+    lyricsTheme: {
+      text: 'Lyrics Page Appearance',
+      light: 'Light',
+      dark: 'Dark',
+    },
     closeAppOption: {
       text: 'Close App...',
       ask: 'Ask',
