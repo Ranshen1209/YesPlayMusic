@@ -158,6 +158,7 @@
                 :dot-size="12"
               ></vue-slider>
             </div>
+            <span class="volume-value">{{ volumePercent }}</span>
           </div>
 
           <button-icon
@@ -205,6 +206,9 @@ export default {
       set(value) {
         this.player.volume = value;
       },
+    },
+    volumePercent() {
+      return `${Math.round(this.volume * 100)}%`;
     },
     playing() {
       return this.player.playing;
@@ -472,6 +476,17 @@ export default {
     align-items: center;
     .volume-bar {
       width: 84px;
+    }
+    .volume-value {
+      width: 36px;
+      margin-left: 8px;
+      color: var(--color-text);
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1;
+      text-align: right;
+      opacity: 0.58;
+      user-select: none;
     }
   }
 }
