@@ -525,14 +525,20 @@ h1 {
 }
 
 .tabs {
+  --library-tab-active-bg: rgba(245, 245, 247, 0.68);
+  --library-tab-active-border: rgba(255, 255, 255, 0.46);
+  --library-tab-active-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+
   display: flex;
   flex-wrap: wrap;
   font-size: 18px;
   color: var(--color-text);
   .tab {
+    box-sizing: border-box;
     font-weight: 600;
     padding: 8px 14px;
     margin-right: 14px;
+    border: 1px solid transparent;
     border-radius: 8px;
     cursor: pointer;
     user-select: none;
@@ -545,7 +551,11 @@ h1 {
   }
   .tab.active {
     opacity: 0.88;
-    background-color: var(--color-secondary-bg);
+    background-color: var(--library-tab-active-bg);
+    border-color: var(--library-tab-active-border);
+    box-shadow: var(--library-tab-active-shadow);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
   }
   .tab.dropdown {
     display: flex;
@@ -566,6 +576,12 @@ h1 {
       }
     }
   }
+}
+
+[data-theme='dark'] .tabs {
+  --library-tab-active-bg: rgba(50, 50, 50, 0.62);
+  --library-tab-active-border: rgba(255, 255, 255, 0.1);
+  --library-tab-active-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
 }
 
 button.tab-button {
