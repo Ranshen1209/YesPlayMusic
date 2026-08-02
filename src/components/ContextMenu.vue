@@ -1,16 +1,18 @@
 <template>
   <div ref="contextMenu" class="context-menu">
-    <div
-      v-if="showMenu"
-      ref="menu"
-      class="menu"
-      tabindex="-1"
-      :style="{ top: top, left: left }"
-      @blur="closeMenu"
-      @click="closeMenu"
-    >
-      <slot></slot>
-    </div>
+    <Teleport to="body">
+      <div
+        v-if="showMenu"
+        ref="menu"
+        class="menu context-menu-surface"
+        tabindex="-1"
+        :style="{ top: top, left: left }"
+        @blur="closeMenu"
+        @click="closeMenu"
+      >
+        <slot></slot>
+      </div>
+    </Teleport>
   </div>
 </template>
 
@@ -76,15 +78,16 @@ export default {
   min-width: 136px;
   max-width: 240px;
   list-style: none;
-  background: rgba(255, 255, 255, 0.86);
+  background: rgba(255, 255, 255, 0.58);
   box-shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.24);
   border: 1px solid rgba(255, 255, 255, 0.58);
-  -webkit-backdrop-filter: saturate(180%) blur(28px);
-  backdrop-filter: saturate(180%) blur(28px);
+  -webkit-backdrop-filter: saturate(190%) blur(32px);
+  backdrop-filter: saturate(190%) blur(32px);
   border-radius: 12px;
   box-sizing: border-box;
   padding: 6px;
   z-index: 1000;
+  isolation: isolate;
   -webkit-app-region: no-drag;
   transition: background 125ms ease-out, opacity 125ms ease-out,
     transform 125ms ease-out;
@@ -95,7 +98,7 @@ export default {
 }
 
 [data-theme='dark'] .menu {
-  background: rgba(28, 28, 30, 0.84);
+  background: rgba(28, 28, 30, 0.58);
   border-color: rgba(255, 255, 255, 0.14);
   box-shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.52);
   -webkit-backdrop-filter: saturate(160%) blur(28px) brightness(72%);

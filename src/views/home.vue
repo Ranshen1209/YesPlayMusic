@@ -309,7 +309,13 @@ footer {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 24px;
-  align-items: start;
+  height: clamp(190px, 25vh, 280px);
+  align-items: stretch;
   margin-bottom: 78px;
+
+  > * {
+    min-width: 0;
+    height: 100%;
+  }
 }
 </style>

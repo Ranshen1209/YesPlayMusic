@@ -2,6 +2,7 @@
   <div class="lyrics-page" :class="{ 'no-lyric': noLyric }" :data-theme="theme">
     <div v-if="useDynamicBackground" class="amll-background">
       <BackgroundRender
+        :key="bgImageUrl"
         class="amll-background-render"
         :album="bgImageUrl"
         :playing="showLyrics"
@@ -372,7 +373,8 @@ export default {
     },
   },
   watch: {
-    currentTrack() {
+    'currentTrack.id'() {
+      this.clearLyrics();
       this.getLyric();
     },
     showLyrics(show) {
@@ -461,7 +463,9 @@ export default {
     },
     getLyric() {
       if (!this.currentTrack.id) return Promise.resolve(false);
-      return getLyric(this.currentTrack.id).then(data => {
+      const trackId = this.currentTrack.id;
+      return getLyric(trackId).then(data => {
+        if (trackId !== this.currentTrack.id) return false;
         if (!data?.lrc?.lyric) {
           this.clearLyrics();
           return false;

@@ -121,9 +121,9 @@ export default {
   background: var(--color-secondary-bg);
   border-radius: 1rem;
   display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(120px, 34%) minmax(0, 1fr);
   width: 100%;
-  aspect-ratio: 1 / 1;
+  height: 100%;
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -141,11 +141,11 @@ export default {
 .right-part {
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: space-between;
   color: var(--color-text);
   width: 100%;
   min-width: 0;
-  padding-top: 1rem;
+  padding: 0.25rem 0 0.25rem 1.25rem;
   box-sizing: border-box;
   .title {
     font-size: 1.6rem;
@@ -168,7 +168,7 @@ export default {
   .controls {
     display: flex;
     justify-content: space-between;
-    align-items: baseline;
+    align-items: center;
     margin-left: -0.4rem;
     .buttons {
       display: flex;
@@ -191,6 +191,7 @@ export default {
       align-items: center;
       font-weight: 600;
       user-select: none;
+      white-space: nowrap;
       .svg-icon {
         width: 18px;
         height: 18px;

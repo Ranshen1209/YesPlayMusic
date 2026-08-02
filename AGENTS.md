@@ -106,6 +106,7 @@ To publish a version: bump `package.json` `version` to match (the tag must equal
 #### Release handoff checklist (required)
 
 - Treat the final tag tree as the release source of truth. A commit being in `master` history does not prove its behavior survived a later rewrite; inspect the final source and run `yarn verify:customizations` before dispatching.
+- When a customization requirement changes, review and update the corresponding `verify:customizations` assertion before release. A passing check that still encodes an obsolete layout or behavior is a release failure, not evidence that the current requirement survived.
 - Confirm `git rev-parse <tag>^{}` is the intended commit, `package.json` version matches the tag, and the workflow is dispatched against that tag, not `master` or a feature branch.
 - macOS releases are currently unsigned because the project has no distributable Developer ID identity. Keep `CSC_IDENTITY_AUTO_DISCOVERY=false` explicit in CI so a runner identity cannot silently change release behavior. If signing is enabled later, require a valid distribution identity in repository secrets and verify the CI-produced app with `codesign --verify --deep --strict` before publishing (downloading for inspection is allowed; never re-upload it).
 - After CI completes, inspect the draft release for macOS, Windows, and Linux assets plus every `latest*.yml`/`.blockmap` manifest. Do not call a release complete while any matrix platform is missing.

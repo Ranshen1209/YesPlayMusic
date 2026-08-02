@@ -81,7 +81,7 @@ export default {
 .daily-recommend-card {
   border-radius: 1rem;
   width: 100%;
-  aspect-ratio: 1 / 1;
+  height: 100%;
   cursor: pointer;
   position: relative;
   overflow: hidden;
@@ -109,8 +109,8 @@ img {
 }
 
 .title-box {
-  height: 148px;
-  width: 148px;
+  height: clamp(112px, 15vh, 148px);
+  width: clamp(112px, 15vh, 148px);
   color: white;
   display: flex;
   justify-content: center;
@@ -121,8 +121,8 @@ img {
     height: 100%;
     width: 100%;
     font-weight: 600;
-    font-size: 64px;
-    line-height: 48px;
+    font-size: clamp(46px, 6vh, 64px);
+    line-height: 0.75;
     opacity: 0.96;
     display: grid;
     grid-template-columns: 1fr 1fr;

@@ -11,7 +11,7 @@ const checks = [
   [
     'AMLL dynamic background',
     'src/views/lyrics.vue',
-    /<BackgroundRender[\s\S]*:album="bgImageUrl"/,
+    /<BackgroundRender[\s\S]*:key="bgImageUrl"[\s\S]*:album="bgImageUrl"/,
   ],
   ['lyrics close transition', 'src/App.vue', /v-show="!showLyrics"/],
   ['vibrancy lyrics integration', 'src/assets/css/global.scss', /\.lyrics-page/],
@@ -50,12 +50,17 @@ const checks = [
     /@update:model-value="updateProgress"[\s\S]*@update:model-value="updateVolume"/,
   ],
   ['lyrics font settings', 'src/views/settings.vue', /lyricFontWeight/],
-  ['square For You cards', 'src/components/FMCard.vue', /aspect-ratio: 1 \/ 1/],
   [
-    'square daily recommendation card',
-    'src/components/DailyTracksCard.vue',
-    /aspect-ratio: 1 \/ 1[\s\S]*object-position: center/,
+    'compact For You cards',
+    'src/views/home.vue',
+    /height: clamp\(190px, 25vh, 280px\)/,
   ],
+  [
+    'centered daily recommendation cover',
+    'src/components/DailyTracksCard.vue',
+    /height: 100%[\s\S]*object-position: center/,
+  ],
+  ['top-level blurred menus', 'src/components/ContextMenu.vue', /<Teleport to="body">/],
 ];
 
 const forbiddenChecks = [
