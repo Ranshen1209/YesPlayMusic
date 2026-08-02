@@ -24,7 +24,24 @@ const updateSetting = () => {
   }
 
   if (localStorage.getItem('appVersion') === '"0.3.9"') {
-    settings.lyricsBackground = true;
+    settings.lyricsBackground = 'dynamic';
+  }
+
+  // 旧版用布尔值表示背景开关；新版明确区分动态封面和模糊封面。
+  if (settings.lyricsBackground === true) {
+    settings.lyricsBackground = 'dynamic';
+  }
+  if (![false, 'blur', 'dynamic'].includes(settings.lyricsBackground)) {
+    settings.lyricsBackground = 'dynamic';
+  }
+
+  if (!['system', 'sans-serif', 'serif'].includes(settings.lyricFontFamily)) {
+    settings.lyricFontFamily = initLocalStorage.settings.lyricFontFamily;
+  }
+  if (![400, 500, 600, 700].includes(Number(settings.lyricFontWeight))) {
+    settings.lyricFontWeight = initLocalStorage.settings.lyricFontWeight;
+  } else {
+    settings.lyricFontWeight = Number(settings.lyricFontWeight);
   }
 
   delete settings.lyricsTheme;

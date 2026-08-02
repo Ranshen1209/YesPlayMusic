@@ -13,12 +13,8 @@ const checks = [
     'src/views/lyrics.vue',
     /<BackgroundRender[\s\S]*:album="bgImageUrl"/,
   ],
-  ['lyrics close transition', 'src/App.vue', /finishLyricsClosing/],
-  [
-    'vibrancy lyrics integration',
-    'src/assets/css/global.scss',
-    /body\[data-vibrancy='on'\][\s\S]*\.lyrics-page \.amll-background/,
-  ],
+  ['lyrics close transition', 'src/App.vue', /v-show="!showLyrics"/],
+  ['vibrancy lyrics integration', 'src/assets/css/global.scss', /\.lyrics-page/],
   [
     'macOS native vibrancy',
     'src/background.js',
@@ -38,6 +34,28 @@ const checks = [
   ['home section settings', 'src/views/settings.vue', /showFollowedArtists/],
   ['hidden home cards', 'src/components/CoverRow.vue', /hideCard/],
   ['volume percentage', 'src/components/Player.vue', /volumePercent/],
+  [
+    'Vue 3 player state synchronization',
+    'src/store/index.js',
+    /markRaw\([\s\S]*store\.commit\('syncPlayerState'\)/,
+  ],
+  [
+    'player UI state snapshot',
+    'src/store/state.js',
+    /playerState:[\s\S]*currentTrack:[\s\S]*progress:[\s\S]*volume:/,
+  ],
+  [
+    'player slider updates',
+    'src/components/Player.vue',
+    /@update:model-value="updateProgress"[\s\S]*@update:model-value="updateVolume"/,
+  ],
+  ['lyrics font settings', 'src/views/settings.vue', /lyricFontWeight/],
+  ['square For You cards', 'src/components/FMCard.vue', /aspect-ratio: 1 \/ 1/],
+  [
+    'square daily recommendation card',
+    'src/components/DailyTracksCard.vue',
+    /aspect-ratio: 1 \/ 1[\s\S]*object-position: center/,
+  ],
 ];
 
 const forbiddenChecks = [
@@ -52,6 +70,11 @@ const forbiddenChecks = [
     `src/locale/lang/${lang}.js`,
     /lyricsTheme/,
   ]),
+  [
+    'hidden AMLL background in vibrancy mode',
+    'src/assets/css/global.scss',
+    /body\[data-vibrancy='on'\][\s\S]*\.amll-background[\s\S]*display:\s*none/,
+  ],
 ];
 
 const failures = [];

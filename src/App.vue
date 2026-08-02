@@ -1,9 +1,9 @@
 <template>
   <div id="app" :class="{ 'user-select-none': userSelectNone }">
-    <Scrollbar v-show="!showLyrics && !lyricsClosing" ref="scrollbar" />
-    <Navbar v-show="showNavbar && !showLyrics && !lyricsClosing" ref="navbar" />
+    <Scrollbar v-show="!showLyrics" ref="scrollbar" />
+    <Navbar v-show="showNavbar && !showLyrics" ref="navbar" />
     <main
-      v-show="!showLyrics && !lyricsClosing"
+      v-show="!showLyrics"
       ref="main"
       :style="{ overflow: enableScrolling ? 'auto' : 'hidden' }"
       @scroll="handleScroll"
@@ -18,7 +18,7 @@
     <transition name="slide-up">
       <Player
         v-if="enablePlayer"
-        v-show="showPlayer && !showLyrics && !lyricsClosing"
+        v-show="showPlayer && !showLyrics"
         ref="player"
       />
     </transition>
@@ -27,11 +27,7 @@
     <ModalNewPlaylist v-if="isAccountLoggedIn" />
     <ModalDownloadConfirm v-if="isElectron" />
     <ModalHiddenCards />
-    <transition
-      v-if="enablePlayer"
-      name="slide-up"
-      @after-leave="finishLyricsClosing"
-    >
+    <transition v-if="enablePlayer" name="slide-up">
       <Lyrics v-show="showLyrics" />
     </transition>
   </div>
@@ -68,13 +64,16 @@ export default {
     return {
       isElectron: process.env.IS_ELECTRON, // true || undefined
       userSelectNone: false,
-      // 原生毛玻璃下歌词页透明，关闭动画结束前不能显示主界面，否则会重影。
-      lyricsClosing: false,
-      lyricsClosingTimer: null,
     };
   },
   computed: {
-    ...mapState(['showLyrics', 'settings', 'player', 'enableScrolling']),
+    ...mapState([
+      'showLyrics',
+      'settings',
+      'player',
+      'playerState',
+      'enableScrolling',
+    ]),
     isAccountLoggedIn() {
       return isAccountLoggedIn();
     },
@@ -90,27 +89,10 @@ export default {
       );
     },
     enablePlayer() {
-      return this.player.enabled && this.$route.name !== 'lastfmCallback';
+      return this.playerState.enabled && this.$route.name !== 'lastfmCallback';
     },
     showNavbar() {
       return this.$route.name !== 'lastfmCallback';
-    },
-  },
-  watch: {
-    showLyrics(show) {
-      clearTimeout(this.lyricsClosingTimer);
-      this.lyricsClosingTimer = null;
-      if (show) {
-        this.lyricsClosing = false;
-        return;
-      }
-      if (document.body.getAttribute('data-vibrancy') === 'on') {
-        this.lyricsClosing = true;
-        // transition 被卸载时 after-leave 不会触发，定时器负责兜底复位。
-        this.lyricsClosingTimer = setTimeout(() => {
-          this.finishLyricsClosing();
-        }, 450);
-      }
     },
   },
   created() {
@@ -119,19 +101,12 @@ export default {
     this.fetchData();
   },
   beforeUnmount() {
-    clearTimeout(this.lyricsClosingTimer);
     window.removeEventListener('keydown', this.handleKeydown);
   },
   beforeDestroy() {
-    clearTimeout(this.lyricsClosingTimer);
     window.removeEventListener('keydown', this.handleKeydown);
   },
   methods: {
-    finishLyricsClosing() {
-      clearTimeout(this.lyricsClosingTimer);
-      this.lyricsClosingTimer = null;
-      this.lyricsClosing = false;
-    },
     handleKeydown(e) {
       if (e.code === 'Space') {
         if (['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return false;

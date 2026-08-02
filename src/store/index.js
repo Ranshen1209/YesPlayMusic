@@ -1,4 +1,5 @@
 import { createStore } from 'vuex';
+import { markRaw } from 'vue';
 import state from './state';
 import mutations from './mutations';
 import actions from './actions';
@@ -55,16 +56,20 @@ window
   });
 
 let player = new Player();
-player = new Proxy(player, {
-  set(target, prop, val) {
-    // console.log({ prop, val });
-    target[prop] = val;
-    if (prop === '_howler') return true;
-    target.saveSelfToLocalStorage();
-    target.sendSelfToIpcMain();
-    return true;
-  },
-});
-store.state.player = player;
+player = markRaw(
+  new Proxy(player, {
+    set(target, prop, value) {
+      target[prop] = value;
+      if (prop === '_howler') return true;
+      target.saveSelfToLocalStorage();
+      target.sendSelfToIpcMain();
+      store.commit('syncPlayerState');
+      return true;
+    },
+  })
+);
+store.commit('setPlayer', player);
+store.commit('syncPlayerState');
+window.yesplaymusic.player = store.state.player;
 
 export default store;

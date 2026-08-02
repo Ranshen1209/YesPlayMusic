@@ -2,6 +2,8 @@ import initLocalStorage from './initLocalStorage';
 import pkg from '../../package.json';
 import updateApp from '@/utils/updateApp';
 
+const savedPlayer = JSON.parse(localStorage.getItem('player')) || {};
+
 if (localStorage.getItem('appVersion') === null) {
   localStorage.setItem('settings', JSON.stringify(initLocalStorage.settings));
   localStorage.setItem('data', JSON.stringify(initLocalStorage.data));
@@ -75,7 +77,19 @@ export default {
     };
   })(),
   lastfm: JSON.parse(localStorage.getItem('lastfm')) || {},
-  player: JSON.parse(localStorage.getItem('player')),
+  player: savedPlayer,
+  playerState: {
+    currentTrack: savedPlayer._currentTrack || {},
+    personalFMTrack: savedPlayer._personalFMTrack || {},
+    progress: savedPlayer._progress || 0,
+    volume: savedPlayer._volume ?? 1,
+    playing: savedPlayer._playing || false,
+    enabled: savedPlayer._enabled || false,
+    isPersonalFM: savedPlayer._isPersonalFM || false,
+    repeatMode: savedPlayer._repeatMode || 'off',
+    shuffle: savedPlayer._shuffle || false,
+    reversed: savedPlayer._reversed || false,
+  },
   settings: JSON.parse(localStorage.getItem('settings')),
   data: JSON.parse(localStorage.getItem('data')),
 };

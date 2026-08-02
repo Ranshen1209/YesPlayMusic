@@ -151,6 +151,7 @@ export default class {
   set volume(volume) {
     this._volume = volume;
     this._howler?.volume(volume);
+    store.commit('syncPlayerState');
   }
   get list() {
     return this.shuffle ? this._shuffledList : this._list;
@@ -201,12 +202,14 @@ export default class {
     return this._progress;
   }
   set progress(value) {
+    this._progress = value;
     if (this._howler) {
       this._howler.seek(value);
       if (isCreateMpris) {
         ipcRenderer?.send('seeked', this._howler.seek());
       }
     }
+    store.commit('syncPlayerState');
   }
   get isCurrentTrackLiked() {
     return store.state.liked.songs.includes(this.currentTrack.id);
@@ -235,12 +238,14 @@ export default class {
       personalFM().then(result => {
         this._personalFMTrack = result.data[0];
         this._personalFMNextTrack = result.data[1];
+        store.commit('syncPlayerState');
         return this._personalFMTrack;
       });
     }
   }
   _setPlaying(isPlaying) {
     this._playing = isPlaying;
+    store.commit('syncPlayerState');
     if (isCreateTray) {
       ipcRenderer?.send('updateTrayPlayState', this._playing);
     }
@@ -252,6 +257,7 @@ export default class {
     setInterval(() => {
       if (this._howler === null) return;
       this._progress = this._howler.seek();
+      store.commit('syncPlayerState');
       localStorage.setItem('playerCurrentTrackTime', this._progress);
       if (isCreateMpris) {
         ipcRenderer?.send('playerCurrentTrackTime', this._progress);
@@ -501,6 +507,7 @@ export default class {
     return getTrackDetail(id).then(data => {
       const track = data.songs[0];
       this._currentTrack = track;
+      store.commit('syncPlayerState');
       this._updateMediaSessionMetaData(track);
       return this._replaceCurrentTrackAudio(
         track,

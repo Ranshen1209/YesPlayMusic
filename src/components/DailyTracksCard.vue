@@ -80,7 +80,8 @@ export default {
 <style lang="scss" scoped>
 .daily-recommend-card {
   border-radius: 1rem;
-  height: 198px;
+  width: 100%;
+  aspect-ratio: 1 / 1;
   cursor: pointer;
   position: relative;
   overflow: hidden;
@@ -92,15 +93,16 @@ img {
   top: 0;
   left: 0;
   width: 100%;
-  animation: move 38s infinite;
-  animation-direction: alternate;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
   z-index: -1;
 }
 
 .container {
   background: linear-gradient(to left, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.28));
-  height: 198px;
-  width: 50%;
+  height: 100%;
+  width: 62%;
   display: flex;
   align-items: center;
   border-radius: 0.94rem;
@@ -158,15 +160,6 @@ img {
   }
   &:active {
     transform: scale(0.94);
-  }
-}
-
-@keyframes move {
-  0% {
-    transform: translateY(0);
-  }
-  100% {
-    transform: translateY(-50%);
   }
 }
 </style>

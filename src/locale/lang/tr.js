@@ -201,6 +201,19 @@ export default {
       large: 'Büyük(Varsayılan)',
       xlarge: 'Çok-Büyük',
     },
+    lyricFontFamily: {
+      text: 'Şarkı Sözü Yazı Tipi',
+      system: 'Sistem Varsayılanı',
+      sansSerif: 'Sans Serif',
+      serif: 'Serif',
+    },
+    lyricFontWeight: {
+      text: 'Şarkı Sözü Yazı Kalınlığı',
+      regular: 'Normal',
+      medium: 'Orta',
+      semiBold: 'Yarı Kalın (Varsayılan)',
+      bold: 'Kalın',
+    },
     deviceSelector: 'Ses Çıkış Cihazı',
     permissionRequired: 'Mikrofon izni gerekiyor',
     appearance: {
@@ -258,7 +271,7 @@ export default {
     lyricsBackground: {
       text: 'Şarkı Sözleri Arka Planını Göster',
       off: 'kapalı',
-      on: 'açık',
+      blur: 'bulanık kapak',
       dynamic: 'dinamik(Yüksek GPU kullanımı)',
     },
     closeAppOption: {

@@ -398,12 +398,50 @@
             <option :value="false">
               {{ $t('settings.lyricsBackground.off') }}
             </option>
-            <option :value="true">
-              {{ $t('settings.lyricsBackground.on') }}
+            <option value="blur">
+              {{ $t('settings.lyricsBackground.blur') }}
             </option>
-            <option value="blur"> 模糊封面 </option>
             <option value="dynamic">
               {{ $t('settings.lyricsBackground.dynamic') }}
+            </option>
+          </select>
+        </div>
+      </div>
+      <div class="item">
+        <div class="left">
+          <div class="title">{{ $t('settings.lyricFontFamily.text') }}</div>
+        </div>
+        <div class="right">
+          <select v-model="lyricFontFamily">
+            <option value="system">
+              {{ $t('settings.lyricFontFamily.system') }}
+            </option>
+            <option value="sans-serif">
+              {{ $t('settings.lyricFontFamily.sansSerif') }}
+            </option>
+            <option value="serif">
+              {{ $t('settings.lyricFontFamily.serif') }}
+            </option>
+          </select>
+        </div>
+      </div>
+      <div class="item">
+        <div class="left">
+          <div class="title">{{ $t('settings.lyricFontWeight.text') }}</div>
+        </div>
+        <div class="right">
+          <select v-model="lyricFontWeight">
+            <option :value="400">
+              {{ $t('settings.lyricFontWeight.regular') }}
+            </option>
+            <option :value="500">
+              {{ $t('settings.lyricFontWeight.medium') }}
+            </option>
+            <option :value="600">
+              {{ $t('settings.lyricFontWeight.semiBold') }}
+            </option>
+            <option :value="700">
+              {{ $t('settings.lyricFontWeight.bold') }}
             </option>
           </select>
         </div>
@@ -1357,7 +1395,32 @@ export default {
         return this.settings.lyricFontSize;
       },
       set(value) {
-        this.$store.commit('changeLyricFontSize', value);
+        this.$store.commit('updateSettings', {
+          key: 'lyricFontSize',
+          value: Number(value),
+        });
+      },
+    },
+    lyricFontFamily: {
+      get() {
+        return this.settings.lyricFontFamily || 'system';
+      },
+      set(value) {
+        this.$store.commit('updateSettings', {
+          key: 'lyricFontFamily',
+          value,
+        });
+      },
+    },
+    lyricFontWeight: {
+      get() {
+        return Number(this.settings.lyricFontWeight) || 600;
+      },
+      set(value) {
+        this.$store.commit('updateSettings', {
+          key: 'lyricFontWeight',
+          value: Number(value),
+        });
       },
     },
     outputDevice: {
@@ -1497,7 +1560,9 @@ export default {
     },
     lyricsBackground: {
       get() {
-        return this.settings.lyricsBackground || false;
+        return this.settings.lyricsBackground === true
+          ? 'dynamic'
+          : this.settings.lyricsBackground;
       },
       set(value) {
         this.$store.commit('updateSettings', {

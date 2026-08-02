@@ -2,9 +2,9 @@
   <div class="player" @click="handleClick" @mousedown="handleMouseDown">
     <div class="progress-bar" @click.stop>
       <vue-slider
-        v-model="player.progress"
+        :model-value="playerState.progress"
         :min="0"
-        :max="player.currentTrackDuration"
+        :max="currentTrackDuration"
         :interval="1"
         :drag-on-click="true"
         :duration="0"
@@ -13,6 +13,7 @@
         :tooltip-formatter="formatTrackTime"
         :lazy="true"
         :silent="true"
+        @update:model-value="updateProgress"
       ></vue-slider>
     </div>
     <div class="controls">
@@ -48,7 +49,7 @@
                   ? $t('player.unlike')
                   : $t('player.like')
               "
-              @click.native="likeATrack(player.currentTrack.id)"
+              @click="likeATrack(currentTrack.id)"
             >
               <svg-icon
                 v-show="!player.isCurrentTrackLiked"
@@ -67,25 +68,25 @@
         <div class="blank"></div>
         <div class="container" @click.stop>
           <button-icon
-            v-show="!player.isPersonalFM"
+            v-show="!playerState.isPersonalFM"
             :title="$t('player.previous')"
-            @click.native="playPrevTrack"
+            @click="playPrevTrack"
             ><svg-icon icon-class="previous"
           /></button-icon>
           <button-icon
-            v-show="player.isPersonalFM"
+            v-show="playerState.isPersonalFM"
             title="不喜欢"
-            @click.native="moveToFMTrash"
+            @click="moveToFMTrash"
             ><svg-icon icon-class="thumbs-down"
           /></button-icon>
           <button-icon
             class="play"
-            :title="$t(player.playing ? 'player.pause' : 'player.play')"
-            @click.native="playOrPause"
+            :title="$t(playing ? 'player.pause' : 'player.play')"
+            @click="playOrPause"
           >
-            <svg-icon :icon-class="player.playing ? 'pause' : 'play'"
+            <svg-icon :icon-class="playing ? 'pause' : 'play'"
           /></button-icon>
-          <button-icon :title="$t('player.next')" @click.native="playNextTrack"
+          <button-icon :title="$t('player.next')" @click="playNextTrack"
             ><svg-icon icon-class="next"
           /></button-icon>
         </div>
@@ -98,47 +99,53 @@
             :title="$t('player.nextUp')"
             :class="{
               active: $route.name === 'next',
-              disabled: player.isPersonalFM,
+              disabled: playerState.isPersonalFM,
             }"
-            @click.native="goToNextTracksPage"
+            @click="goToNextTracksPage"
             ><svg-icon icon-class="list"
           /></button-icon>
           <button-icon
             :class="{
-              active: player.repeatMode !== 'off',
-              disabled: player.isPersonalFM,
+              active: playerState.repeatMode !== 'off',
+              disabled: playerState.isPersonalFM,
             }"
             :title="
-              player.repeatMode === 'one'
+              playerState.repeatMode === 'one'
                 ? $t('player.repeatTrack')
                 : $t('player.repeat')
             "
-            @click.native="switchRepeatMode"
+            @click="switchRepeatMode"
           >
             <svg-icon
-              v-show="player.repeatMode !== 'one'"
+              v-show="playerState.repeatMode !== 'one'"
               icon-class="repeat"
             />
             <svg-icon
-              v-show="player.repeatMode === 'one'"
+              v-show="playerState.repeatMode === 'one'"
               icon-class="repeat-1"
             />
           </button-icon>
           <button-icon
-            :class="{ active: player.shuffle, disabled: player.isPersonalFM }"
+            :class="{
+              active: playerState.shuffle,
+              disabled: playerState.isPersonalFM,
+            }"
             :title="$t('player.shuffle')"
-            @click.native="switchShuffle"
+            @click="switchShuffle"
             ><svg-icon icon-class="shuffle"
           /></button-icon>
           <button-icon
             v-if="settings.enableReversedMode"
-            :class="{ active: player.reversed, disabled: player.isPersonalFM }"
+            :class="{
+              active: playerState.reversed,
+              disabled: playerState.isPersonalFM,
+            }"
             :title="$t('player.reversed')"
-            @click.native="switchReversed"
+            @click="switchReversed"
             ><svg-icon icon-class="sort-up"
           /></button-icon>
           <div class="volume-control">
-            <button-icon :title="$t('player.mute')" @click.native="mute">
+            <button-icon :title="$t('player.mute')" @click="mute">
               <svg-icon v-show="volume > 0.5" icon-class="volume" />
               <svg-icon v-show="volume === 0" icon-class="volume-mute" />
               <svg-icon
@@ -148,7 +155,7 @@
             </button-icon>
             <div class="volume-bar">
               <vue-slider
-                v-model="volume"
+                :model-value="volume"
                 :min="0"
                 :max="1"
                 :interval="0.01"
@@ -156,6 +163,7 @@
                 :duration="0"
                 tooltip="none"
                 :dot-size="12"
+                @update:model-value="updateVolume"
               ></vue-slider>
             </div>
             <span class="volume-value">{{ volumePercent }}</span>
@@ -165,7 +173,7 @@
             class="lyrics-button"
             title="歌词"
             style="margin-left: 12px"
-            @click.native="toggleLyrics"
+            @click="toggleLyrics"
             ><svg-icon icon-class="arrow-up"
           /></button-icon>
         </div>
@@ -195,13 +203,17 @@ export default {
     };
   },
   computed: {
-    ...mapState(['player', 'settings', 'data']),
+    ...mapState(['player', 'playerState', 'settings', 'data']),
     currentTrack() {
-      return this.player.currentTrack;
+      return this.playerState.currentTrack || this.player.currentTrack;
+    },
+    currentTrackDuration() {
+      const duration = Math.trunc((this.currentTrack?.dt || 1000) / 1000);
+      return duration > 1 ? duration - 1 : duration;
     },
     volume: {
       get() {
-        return this.player.volume;
+        return this.playerState.volume;
       },
       set(value) {
         this.player.volume = value;
@@ -211,7 +223,7 @@ export default {
       return `${Math.round(this.volume * 100)}%`;
     },
     playing() {
-      return this.player.playing;
+      return this.playerState.playing;
     },
     audioSource() {
       return this.player._howler?._src.includes('kuwo.cn')
@@ -224,6 +236,9 @@ export default {
     window.addEventListener('keydown', this.handleKeydown);
   },
   beforeDestroy() {
+    window.removeEventListener('keydown', this.handleKeydown);
+  },
+  beforeUnmount() {
     window.removeEventListener('keydown', this.handleKeydown);
   },
   methods: {
@@ -244,20 +259,26 @@ export default {
       this.player.playOrPause();
     },
     playNextTrack() {
-      if (this.player.isPersonalFM) {
+      if (this.playerState.isPersonalFM) {
         this.player.playNextFMTrack();
       } else {
         this.player.playNextTrack();
       }
     },
     goToNextTracksPage() {
-      if (this.player.isPersonalFM) return;
+      if (this.playerState.isPersonalFM) return;
       this.$route.name === 'next'
         ? this.$router.go(-1)
         : this.$router.push({ name: 'next' });
     },
     formatTrackTime(value) {
       return formatTrackTime(value);
+    },
+    updateProgress(value) {
+      this.player.progress = value;
+    },
+    updateVolume(value) {
+      this.player.volume = value;
     },
     hasList() {
       return hasListSource();
@@ -266,8 +287,8 @@ export default {
       goToListSource();
     },
     goToAlbum() {
-      if (this.player.currentTrack.al.id === 0) return;
-      this.$router.push({ path: '/album/' + this.player.currentTrack.al.id });
+      if (this.currentTrack.al.id === 0) return;
+      this.$router.push({ path: '/album/' + this.currentTrack.al.id });
     },
     goToArtist(id) {
       this.$router.push({ path: '/artist/' + id });

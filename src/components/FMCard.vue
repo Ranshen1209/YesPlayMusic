@@ -14,17 +14,17 @@
       </div>
       <div class="controls">
         <div class="buttons">
-          <button-icon title="不喜欢" @click.native="moveToFMTrash">
+          <button-icon title="不喜欢" @click="moveToFMTrash">
             <svg-icon id="thumbs-down" icon-class="thumbs-down" />
           </button-icon>
           <button-icon
             :title="$t(isPlaying ? 'player.pause' : 'player.play')"
             class="play"
-            @click.native="play"
+            @click="play"
           >
             <svg-icon :icon-class="isPlaying ? 'pause' : 'play'" />
           </button-icon>
-          <button-icon :title="$t('player.next')" @click.native="next">
+          <button-icon :title="$t('player.next')" @click="next">
             <svg-icon icon-class="next" />
           </button-icon>
         </div>
@@ -50,12 +50,12 @@ export default {
     };
   },
   computed: {
-    ...mapState(['player']),
+    ...mapState(['player', 'playerState']),
     track() {
-      return this.player.personalFMTrack;
+      return this.playerState.personalFMTrack || this.player.personalFMTrack;
     },
     isPlaying() {
-      return this.player.playing && this.player.isPersonalFM;
+      return this.playerState.playing && this.playerState.isPersonalFM;
     },
     artists() {
       return this.track.artists || this.track.ar || [];
@@ -120,24 +120,33 @@ export default {
   padding: 1rem;
   background: var(--color-secondary-bg);
   border-radius: 1rem;
-  display: flex;
-  height: 198px;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  width: 100%;
+  aspect-ratio: 1 / 1;
   box-sizing: border-box;
+  overflow: hidden;
 }
 .cover {
+  width: 100%;
   height: 100%;
+  min-height: 0;
   clip-path: border-box;
   border-radius: 0.75rem;
-  margin-right: 1.2rem;
+  object-fit: cover;
+  object-position: center;
   cursor: pointer;
   user-select: none;
 }
 .right-part {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-end;
   color: var(--color-text);
   width: 100%;
+  min-width: 0;
+  padding-top: 1rem;
+  box-sizing: border-box;
   .title {
     font-size: 1.6rem;
     font-weight: 600;

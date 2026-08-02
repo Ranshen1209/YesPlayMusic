@@ -206,6 +206,19 @@ export default {
       large: 'Large (Default)',
       xlarge: 'X-Large',
     },
+    lyricFontFamily: {
+      text: 'Lyric Font',
+      system: 'System Default',
+      sansSerif: 'Sans Serif',
+      serif: 'Serif',
+    },
+    lyricFontWeight: {
+      text: 'Lyric Font Weight',
+      regular: 'Regular',
+      medium: 'Medium',
+      semiBold: 'Semi Bold (Default)',
+      bold: 'Bold',
+    },
     deviceSelector: 'Audio Output Device',
     permissionRequired: 'Microphone Permission Required',
     appearance: {
@@ -265,7 +278,7 @@ export default {
     lyricsBackground: {
       text: 'Show Lyrics Background',
       off: 'Off',
-      on: 'On',
+      blur: 'Blurred Cover',
       dynamic: 'Dynamic (High GPU usage)',
     },
     closeAppOption: {

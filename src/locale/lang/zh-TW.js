@@ -203,6 +203,19 @@ export default {
       large: '大（預設）',
       xlarge: '超大',
     },
+    lyricFontFamily: {
+      text: '歌詞字體',
+      system: '系統預設',
+      sansSerif: '無襯線體',
+      serif: '襯線體',
+    },
+    lyricFontWeight: {
+      text: '歌詞字重',
+      regular: '標準',
+      medium: '中等',
+      semiBold: '半粗（預設）',
+      bold: '粗體',
+    },
     deviceSelector: '音訊輸出裝置',
     permissionRequired: '需要麥克風權限',
     appearance: {
@@ -263,7 +276,7 @@ export default {
     lyricsBackground: {
       text: '顯示歌詞背景',
       off: '關閉',
-      on: '開啟',
+      blur: '模糊封面',
       dynamic: '動態（GPU 占用較高）',
     },
     closeAppOption: {

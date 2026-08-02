@@ -68,7 +68,7 @@
         <div class="track-actions">
           <ButtonIcon
             :title="$t('player.like')"
-            @click="likeATrack(player.currentTrack.id)"
+            @click="likeATrack(currentTrack.id)"
           >
             <svg-icon
               :icon-class="player.isCurrentTrackLiked ? 'heart-solid' : 'heart'"
@@ -84,12 +84,12 @@
       </div>
 
       <div class="progress-bar">
-        <span>{{ formatTrackTime(player.progress) || '0:00' }}</span>
+        <span>{{ formatTrackTime(playerState.progress) || '0:00' }}</span>
         <vue-slider
-          v-model="player.progress"
+          :model-value="playerState.progress"
           class="progress-slider"
           :min="0"
-          :max="player.currentTrackDuration"
+          :max="currentTrackDuration"
           :interval="1"
           :drag-on-click="true"
           :duration="0"
@@ -98,29 +98,32 @@
           :tooltip-formatter="formatTrackTime"
           :lazy="true"
           :silent="true"
+          @update:model-value="updateProgress"
         />
-        <span>{{ formatTrackTime(player.currentTrackDuration) }}</span>
+        <span>{{ formatTrackTime(currentTrackDuration) }}</span>
       </div>
 
       <div class="media-controls">
         <ButtonIcon
-          v-show="!player.isPersonalFM"
+          v-show="!playerState.isPersonalFM"
           :title="
-            player.repeatMode === 'one'
+            playerState.repeatMode === 'one'
               ? $t('player.repeatTrack')
               : $t('player.repeat')
           "
-          :class="{ active: player.repeatMode !== 'off' }"
+          :class="{ active: playerState.repeatMode !== 'off' }"
           @click="switchRepeatMode"
         >
           <svg-icon
-            :icon-class="player.repeatMode === 'one' ? 'repeat-1' : 'repeat'"
+            :icon-class="
+              playerState.repeatMode === 'one' ? 'repeat-1' : 'repeat'
+            "
           />
         </ButtonIcon>
 
         <div class="primary-controls">
           <ButtonIcon
-            v-if="player.isPersonalFM"
+            v-if="playerState.isPersonalFM"
             title="不喜欢"
             @click="moveToFMTrash"
           >
@@ -135,10 +138,10 @@
           </ButtonIcon>
           <ButtonIcon
             class="play-button"
-            :title="$t(player.playing ? 'player.pause' : 'player.play')"
+            :title="$t(playerState.playing ? 'player.pause' : 'player.play')"
             @click="playOrPause"
           >
-            <svg-icon :icon-class="player.playing ? 'pause' : 'play'" />
+            <svg-icon :icon-class="playerState.playing ? 'pause' : 'play'" />
           </ButtonIcon>
           <ButtonIcon :title="$t('player.next')" @click="playNextTrack">
             <svg-icon icon-class="next" />
@@ -146,9 +149,9 @@
         </div>
 
         <ButtonIcon
-          v-show="!player.isPersonalFM"
+          v-show="!playerState.isPersonalFM"
           :title="$t('player.shuffle')"
-          :class="{ active: player.shuffle }"
+          :class="{ active: playerState.shuffle }"
           @click="switchShuffle"
         >
           <svg-icon icon-class="shuffle" />
@@ -176,7 +179,7 @@
           <svg-icon :icon-class="volumeIcon" />
         </ButtonIcon>
         <vue-slider
-          v-model="volume"
+          :model-value="volume"
           class="volume-slider"
           :min="0"
           :max="1"
@@ -185,6 +188,7 @@
           :duration="0"
           tooltip="none"
           :dot-size="12"
+          @update:model-value="updateVolume"
         />
         <span>{{ volumePercent }}</span>
       </div>
@@ -196,7 +200,7 @@
           class="amll-player-content"
           :lyric-lines="amllLyricLines"
           :current-time="currentTime"
-          :playing="player.playing && showLyrics"
+          :playing="playerState.playing && showLyrics"
           :disabled="!showLyrics"
           :enable-blur="true"
           :enable-scale="true"
@@ -263,9 +267,13 @@ export default {
     };
   },
   computed: {
-    ...mapState(['player', 'settings', 'showLyrics']),
+    ...mapState(['player', 'playerState', 'settings', 'showLyrics']),
     currentTrack() {
-      return this.player.currentTrack || {};
+      return this.playerState.currentTrack || this.player.currentTrack || {};
+    },
+    currentTrackDuration() {
+      const duration = Math.trunc((this.currentTrack.dt || 1000) / 1000);
+      return duration > 1 ? duration - 1 : duration;
     },
     artist() {
       return this.currentTrack.ar?.[0] || { id: 0, name: 'unknown' };
@@ -290,7 +298,7 @@ export default {
     },
     volume: {
       get() {
-        return this.player.volume;
+        return this.playerState.volume;
       },
       set(value) {
         this.player.volume = value;
@@ -310,15 +318,26 @@ export default {
       return this.tlyric.length > 0 && this.romalyric.length > 0;
     },
     lyricStyle() {
+      const fontFamilies = {
+        system:
+          "'Barlow', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif",
+        'sans-serif':
+          "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif",
+        serif:
+          "ui-serif, 'Songti SC', SimSun, 'Noto Serif CJK SC', Georgia, serif",
+      };
       return {
         '--amll-lp-font-size': `${this.settings.lyricFontSize || 28}px`,
+        fontFamily:
+          fontFamilies[this.settings.lyricFontFamily] || fontFamilies.system,
+        fontWeight: Number(this.settings.lyricFontWeight) || 600,
       };
     },
     amllLyricLines() {
       const visibleLines = this.lyric.filter(({ content }) => Boolean(content));
       const lastLine = visibleLines[visibleLines.length - 1];
       const duration = Math.max(
-        (this.player.currentTrackDuration || 0) * 1000,
+        this.currentTrackDuration * 1000,
         (lastLine?.time || 0) * 1000 + 5000
       );
 
@@ -431,6 +450,12 @@ export default {
       clearInterval(this.progressTimer);
       this.progressTimer = null;
     },
+    updateProgress(value) {
+      this.player.progress = value;
+    },
+    updateVolume(value) {
+      this.player.volume = value;
+    },
     findSecondaryLyric(lines, line) {
       return lines.find(item => item.rawTime === line.rawTime)?.content || '';
     },
@@ -539,7 +564,7 @@ export default {
       this.player.playOrPause();
     },
     playNextTrack() {
-      this.player.isPersonalFM
+      this.playerState.isPersonalFM
         ? this.player.playNextFMTrack()
         : this.player.playNextTrack();
     },

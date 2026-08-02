@@ -2,6 +2,24 @@ import shortcuts from '@/utils/shortcuts';
 import cloneDeep from 'lodash/cloneDeep';
 
 export default {
+  setPlayer(state, player) {
+    state.player = player;
+  },
+  syncPlayerState(state) {
+    const player = state.player;
+    Object.assign(state.playerState, {
+      currentTrack: player.currentTrack,
+      personalFMTrack: player.personalFMTrack,
+      progress: player.progress,
+      volume: player.volume,
+      playing: player.playing,
+      enabled: player.enabled,
+      isPersonalFM: player.isPersonalFM,
+      repeatMode: player.repeatMode,
+      shuffle: player.shuffle,
+      reversed: player.reversed,
+    });
+  },
   updateLikedXXX(state, { name, data }) {
     state.liked[name] = data;
     if (name === 'songs') {
@@ -13,9 +31,6 @@ export default {
   },
   changeMusicQuality(state, value) {
     state.settings.musicQuality = value;
-  },
-  changeLyricFontSize(state, value) {
-    state.settings.lyricFontSize = value;
   },
   changeOutputDevice(state, deviceId) {
     state.settings.outputDevice = deviceId;

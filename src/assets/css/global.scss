@@ -91,14 +91,9 @@ body[data-vibrancy='on'] {
     padding-bottom: 24px;
   }
 
-  // 新歌词页使用 AMLL 背景层；毛玻璃模式下让整页透出 Electron 原生材质。
+  // 歌词页保留 AMLL 封面背景；仅底色透明以透出 Electron 原生材质。
   .lyrics-page {
     background: transparent;
-  }
-  .lyrics-page .amll-background,
-  .lyrics-page .blur-background,
-  .lyrics-page .background-tint {
-    display: none;
   }
 }
 

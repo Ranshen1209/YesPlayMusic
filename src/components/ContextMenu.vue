@@ -27,11 +27,11 @@ export default {
     };
   },
   computed: {
-    ...mapState(['player']),
+    ...mapState(['playerState']),
   },
   methods: {
     setMenu(top, left) {
-      let heightOffset = this.player.enabled ? 64 : 0;
+      let heightOffset = this.playerState.enabled ? 64 : 0;
       let largestHeight =
         window.innerHeight - this.$refs.menu.offsetHeight - heightOffset;
       let largestWidth = window.innerWidth - this.$refs.menu.offsetWidth - 25;
@@ -76,16 +76,15 @@ export default {
   min-width: 136px;
   max-width: 240px;
   list-style: none;
-  background: rgba(255, 255, 255, 0.68);
+  background: rgba(255, 255, 255, 0.86);
   box-shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.24);
-  border: 1px solid rgba(255, 255, 255, 0.52);
-  -webkit-backdrop-filter: saturate(180%) blur(24px);
-  backdrop-filter: saturate(180%) blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.58);
+  -webkit-backdrop-filter: saturate(180%) blur(28px);
+  backdrop-filter: saturate(180%) blur(28px);
   border-radius: 12px;
   box-sizing: border-box;
   padding: 6px;
   z-index: 1000;
-  isolation: isolate;
   -webkit-app-region: no-drag;
   transition: background 125ms ease-out, opacity 125ms ease-out,
     transform 125ms ease-out;
@@ -95,17 +94,12 @@ export default {
   }
 }
 
-[data-theme='dark'] {
-  .menu {
-    background: rgba(28, 28, 30, 0.66);
-    -webkit-backdrop-filter: saturate(160%) blur(24px) brightness(72%);
-    backdrop-filter: saturate(160%) blur(24px) brightness(72%);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.52);
-  }
-  .menu :deep(.item:hover) {
-    color: var(--color-text);
-  }
+[data-theme='dark'] .menu {
+  background: rgba(28, 28, 30, 0.84);
+  border-color: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.52);
+  -webkit-backdrop-filter: saturate(160%) blur(28px) brightness(72%);
+  backdrop-filter: saturate(160%) blur(28px) brightness(72%);
 }
 
 @supports (-moz-appearance: none) {

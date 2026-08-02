@@ -207,6 +207,19 @@ export default {
       large: '大（默认）',
       xlarge: '超大',
     },
+    lyricFontFamily: {
+      text: '歌词字体',
+      system: '系统默认',
+      sansSerif: '无衬线体',
+      serif: '衬线体',
+    },
+    lyricFontWeight: {
+      text: '歌词字重',
+      regular: '常规',
+      medium: '中等',
+      semiBold: '半粗（默认）',
+      bold: '粗体',
+    },
     deviceSelector: '音频输出设备',
     permissionRequired: '需要麦克风权限',
     appearance: {
@@ -265,7 +278,7 @@ export default {
     lyricsBackground: {
       text: '显示歌词背景',
       off: '关闭',
-      on: '打开',
+      blur: '模糊封面',
       dynamic: '动态（GPU 占用较高）',
     },
     showLyricsTime: '显示当前时间',
