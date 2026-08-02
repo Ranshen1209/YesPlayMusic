@@ -69,6 +69,16 @@ const checks = [
     'src/components/ContextMenu.vue',
     /<Teleport to="body">/,
   ],
+  [
+    'single CI release publisher',
+    '.github/workflows/build.yaml',
+    /release: false[\s\S]*publish-release:/,
+  ],
+  [
+    'release asset names match update manifests',
+    '.github/workflows/build.yaml',
+    /Normalize Windows release filenames[\s\S]*normalized="\$\{file\/\/ \/-\}"[\s\S]*Update manifest references missing asset/,
+  ],
 ];
 
 const forbiddenChecks = [

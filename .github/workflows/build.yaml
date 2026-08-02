@@ -112,6 +112,17 @@ jobs:
 
           use_vue_cli: true
 
+      - name: Normalize Windows release filenames
+        if: runner.os == 'Windows'
+        run: |
+          for file in dist_electron/*.exe dist_electron/*.exe.blockmap; do
+            normalized="${file// /-}"
+            if [[ "$file" != "$normalized" ]]; then
+              mv "$file" "$normalized"
+            fi
+          done
+        shell: bash
+
       - uses: actions/upload-artifact@v4
         if: runner.os == 'macOS'
         with:
@@ -167,13 +178,24 @@ jobs:
           test -f release-assets/latest-linux.yml
           compgen -G 'release-assets/*.dmg' >/dev/null
           compgen -G 'release-assets/*.dmg.blockmap' >/dev/null
-          compgen -G 'release-assets/*Setup*.exe' >/dev/null
+          compgen -G 'release-assets/*-Setup-*.exe' >/dev/null
           compgen -G 'release-assets/*.exe.blockmap' >/dev/null
           compgen -G 'release-assets/*.AppImage' >/dev/null
           compgen -G 'release-assets/*.deb' >/dev/null
           compgen -G 'release-assets/*.rpm' >/dev/null
           compgen -G 'release-assets/*.pacman' >/dev/null
           compgen -G 'release-assets/*.tar.gz' >/dev/null
+
+          awk '
+            $1 == "-" && $2 == "url:" { print $3 }
+            $1 == "path:" { print $2 }
+          ' release-assets/latest*.yml | sort -u | while IFS= read -r asset; do
+            if [[ ! -f "release-assets/$asset" ]]; then
+              echo "Update manifest references missing asset: $asset" >&2
+              exit 1
+            fi
+          done
+
           find release-assets -maxdepth 1 -type f -print | sort
         shell: bash
 
