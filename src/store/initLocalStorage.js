@@ -35,7 +35,6 @@ let localStorage = {
     enableReversedMode: false,
     showLyricsTranslation: true,
     lyricsBackground: true,
-    lyricsTheme: 'dark',
     enableOsdlyricsSupport: false,
     closeAppOption: 'ask',
     enableDiscordRichPresence: false,

@@ -410,21 +410,6 @@
       </div>
       <div class="item">
         <div class="left">
-          <div class="title">{{ $t('settings.lyricsTheme.text') }}</div>
-        </div>
-        <div class="right">
-          <select v-model="lyricsTheme">
-            <option value="light">
-              {{ $t('settings.lyricsTheme.light') }}
-            </option>
-            <option value="dark">
-              {{ $t('settings.lyricsTheme.dark') }}
-            </option>
-          </select>
-        </div>
-      </div>
-      <div class="item">
-        <div class="left">
           <div class="title"> {{ $t('settings.showLyricsTime') }} </div>
         </div>
         <div class="right">
@@ -1517,17 +1502,6 @@ export default {
       set(value) {
         this.$store.commit('updateSettings', {
           key: 'lyricsBackground',
-          value,
-        });
-      },
-    },
-    lyricsTheme: {
-      get() {
-        return this.settings.lyricsTheme || 'dark';
-      },
-      set(value) {
-        this.$store.commit('updateSettings', {
-          key: 'lyricsTheme',
           value,
         });
       },

@@ -259,6 +259,7 @@ export default {
       date: this.formatTime(new Date()),
       isFullscreen: !!document.fullscreenElement,
       rightClickLyric: null,
+      systemDark: window.matchMedia('(prefers-color-scheme: dark)').matches,
     };
   },
   computed: {
@@ -279,7 +280,10 @@ export default {
       return `${this.currentTrack.al?.picUrl || ''}?param=512y512`;
     },
     theme() {
-      return this.settings.lyricsTheme || 'dark';
+      if (['light', 'dark'].includes(this.settings.appearance)) {
+        return this.settings.appearance;
+      }
+      return this.systemDark ? 'dark' : 'light';
     },
     useDynamicBackground() {
       return [true, 'dynamic'].includes(this.settings.lyricsBackground);
@@ -376,8 +380,16 @@ export default {
     this.handleFullscreenChange = () => {
       this.isFullscreen = !!document.fullscreenElement;
     };
+    this.systemThemeMedia = window.matchMedia('(prefers-color-scheme: dark)');
+    this.handleSystemThemeChange = event => {
+      this.systemDark = event.matches;
+    };
     document.addEventListener('keydown', this.handleKeydown);
     document.addEventListener('fullscreenchange', this.handleFullscreenChange);
+    this.systemThemeMedia.addEventListener(
+      'change',
+      this.handleSystemThemeChange
+    );
   },
   mounted() {
     if (this.showLyrics) this.startProgressSync();
@@ -398,6 +410,10 @@ export default {
       document.removeEventListener(
         'fullscreenchange',
         this.handleFullscreenChange
+      );
+      this.systemThemeMedia.removeEventListener(
+        'change',
+        this.handleSystemThemeChange
       );
     },
     startProgressSync() {
@@ -556,7 +572,10 @@ export default {
   --lyrics-surface: rgba(20, 20, 22, 0.28);
   --lyrics-hover: rgba(255, 255, 255, 0.12);
   position: fixed;
-  inset: 0;
+  top: -1px;
+  right: 0;
+  bottom: 0;
+  left: 0;
   z-index: 200;
   display: grid;
   grid-template-columns: minmax(280px, 46%) minmax(360px, 54%);

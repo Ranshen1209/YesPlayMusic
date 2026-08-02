@@ -135,6 +135,10 @@ function parseSourceStringToList(executor, sourceString) {
 }
 
 export function initIpcMain(win, store, trayEventEmitter) {
+  ipcMain.on('getVibrancyStatus', event => {
+    event.returnValue = win.ypmVibrancyEnabled === true;
+  });
+
   // WIP: Do not enable logging as it has some issues in non-blocking I/O environment.
   // UNM.enableLogging(UNM.LoggingType.ConsoleEnv);
   const unmExecutor = new UNM.Executor();
@@ -230,7 +234,7 @@ export function initIpcMain(win, store, trayEventEmitter) {
 
   ipcMain.on('settings', (event, options) => {
     store.set('settings', options);
-    // macOS：切换主题时同步原生毛玻璃材质的明暗
+    // macOS：切换主题时同步原生毛玻璃材质的明暗。
     if (isMac) {
       nativeTheme.themeSource =
         options.appearance === 'dark'

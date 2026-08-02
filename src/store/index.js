@@ -39,7 +39,12 @@ if ([undefined, null].includes(store.state.settings.lang)) {
 }
 
 changeAppearance(store.state.settings.appearance);
-changeVibrancy(store.state.settings.enableVibrancy === true);
+let vibrancyEnabled = store.state.settings.enableVibrancy === true;
+if (process.env.IS_ELECTRON === true) {
+  const electron = window.require('electron');
+  vibrancyEnabled = electron.ipcRenderer.sendSync('getVibrancyStatus') === true;
+}
+changeVibrancy(vibrancyEnabled);
 
 window
   .matchMedia('(prefers-color-scheme: dark)')

@@ -27,6 +27,8 @@ const updateSetting = () => {
     settings.lyricsBackground = true;
   }
 
+  delete settings.lyricsTheme;
+
   localStorage.setItem('settings', JSON.stringify(settings));
 };
 

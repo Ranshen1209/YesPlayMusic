@@ -40,6 +40,20 @@ const checks = [
   ['volume percentage', 'src/components/Player.vue', /volumePercent/],
 ];
 
+const forbiddenChecks = [
+  ['legacy lyrics theme UI', 'src/views/settings.vue', /lyricsTheme/],
+  [
+    'legacy lyrics theme defaults',
+    'src/store/initLocalStorage.js',
+    /lyricsTheme/,
+  ],
+  ...['en', 'tr', 'zh-CN', 'zh-TW'].map(lang => [
+    `legacy lyrics theme translation (${lang})`,
+    `src/locale/lang/${lang}.js`,
+    /lyricsTheme/,
+  ]),
+];
+
 const failures = [];
 for (const [name, file, pattern] of checks) {
   const absolutePath = path.join(root, file);
@@ -47,6 +61,14 @@ for (const [name, file, pattern] of checks) {
     ? fs.readFileSync(absolutePath, 'utf8')
     : '';
   if (!pattern.test(source)) failures.push(`${name}: ${file}`);
+}
+
+for (const [name, file, pattern] of forbiddenChecks) {
+  const absolutePath = path.join(root, file);
+  const source = fs.existsSync(absolutePath)
+    ? fs.readFileSync(absolutePath, 'utf8')
+    : '';
+  if (pattern.test(source)) failures.push(`${name}: ${file}`);
 }
 
 const pkg = require(path.join(root, 'package.json'));
