@@ -8,11 +8,11 @@
       :style="{ overflow: enableScrolling ? 'auto' : 'hidden' }"
       @scroll="handleScroll"
     >
-      <router-view v-slot="{ Component }">
-        <keep-alive>
-          <component :is="Component" v-if="$route.meta.keepAlive" />
+      <router-view v-slot="{ Component, route }">
+        <keep-alive v-if="route.meta.keepAlive">
+          <component :is="Component" :key="route.fullPath" />
         </keep-alive>
-        <component :is="Component" v-if="!$route.meta.keepAlive" />
+        <component :is="Component" v-else :key="route.fullPath" />
       </router-view>
     </main>
     <transition name="slide-up">

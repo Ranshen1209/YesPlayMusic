@@ -13604,11 +13604,6 @@ vscode-codicons@^0.0.17:
   resolved "https://registry.npmjs.org/vscode-codicons/-/vscode-codicons-0.0.17.tgz"
   integrity sha512-Hzclzhz9ouj5sfjDbXE78fciSGwDrlOMimkRIxFNy0pmHoexzLH1+OKTbrlR+Gz17C9ZCfX7Mlpq21jGsyhgSg==
 
-vue-class-component@^7.1.0:
-  version "7.2.6"
-  resolved "https://registry.npmjs.org/vue-class-component/-/vue-class-component-7.2.6.tgz"
-  integrity sha512-+eaQXVrAm/LldalI272PpDe3+i4mPis0ORiMYxF6Ae4hyuCh15W8Idet7wPUEs4N4YptgFHGys4UrgNQOMyO6w==
-
 vue-cli-plugin-electron-builder@~2.1.1:
   version "2.1.1"
   resolved "https://registry.npmjs.org/vue-cli-plugin-electron-builder/-/vue-cli-plugin-electron-builder-2.1.1.tgz"
@@ -13696,13 +13691,6 @@ vue-loader@^15.9.2:
     vue-hot-reload-api "^2.3.0"
     vue-style-loader "^4.1.0"
 
-vue-property-decorator@^8.0.0:
-  version "8.5.1"
-  resolved "https://registry.npmjs.org/vue-property-decorator/-/vue-property-decorator-8.5.1.tgz"
-  integrity sha512-O6OUN2OMsYTGPvgFtXeBU3jPnX5ffQ9V4I1WfxFQ6dqz6cOUbR3Usou7kgFpfiXDvV7dJQSFcJ5yUPgOtPPm1Q==
-  dependencies:
-    vue-class-component "^7.1.0"
-
 vue-router@4.5.1:
   version "4.5.1"
   resolved "https://registry.yarnpkg.com/vue-router/-/vue-router-4.5.1.tgz#47bffe2d3a5479d2886a9a244547a853aa0abf69"
@@ -13710,13 +13698,10 @@ vue-router@4.5.1:
   dependencies:
     "@vue/devtools-api" "^6.6.4"
 
-vue-slider-component@^3.2.5:
-  version "3.2.24"
-  resolved "https://registry.npmjs.org/vue-slider-component/-/vue-slider-component-3.2.24.tgz"
-  integrity sha512-28hfotAL/CPXPwqHgVFyUwUEV0zweoc2wW0bgraGkoIcRZGlFjk8caYJLE8+Luug5t3b9tJm/NyDXpyIdmcYZg==
-  dependencies:
-    core-js "^3.6.5"
-    vue-property-decorator "^8.0.0"
+vue-slider-component@^4.1.0-beta.7:
+  version "4.1.0-beta.7"
+  resolved "https://registry.yarnpkg.com/vue-slider-component/-/vue-slider-component-4.1.0-beta.7.tgz#f6aaac2557df8b9d5460482e2576a009d0ed2dae"
+  integrity sha512-Qb7K920ZG7PoQswoF6Ias+i3W2rd3k4fpk04JUl82kEUcN86Yg6et7bVSKWt/7VpQe8a5IT3BqCKSCOZ7AJgCA==
 
 vue-style-loader@^4.1.0, vue-style-loader@^4.1.2:
   version "4.1.3"

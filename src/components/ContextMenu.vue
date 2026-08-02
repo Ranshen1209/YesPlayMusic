@@ -35,8 +35,8 @@ export default {
       let largestHeight =
         window.innerHeight - this.$refs.menu.offsetHeight - heightOffset;
       let largestWidth = window.innerWidth - this.$refs.menu.offsetWidth - 25;
-      if (top > largestHeight) top = largestHeight;
-      if (left > largestWidth) left = largestWidth;
+      top = Math.max(0, Math.min(top, largestHeight));
+      left = Math.max(0, Math.min(left, largestWidth));
       this.top = top + 'px';
       this.left = left + 'px';
     },
@@ -54,7 +54,7 @@ export default {
       this.$nextTick(
         function () {
           this.$refs.menu.focus();
-          this.setMenu(e.y, e.x);
+          this.setMenu(e.clientY ?? e.y, e.clientX ?? e.x);
         }.bind(this)
       );
       e.preventDefault();
@@ -103,7 +103,7 @@ export default {
     border: 1px solid rgba(255, 255, 255, 0.12);
     box-shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.52);
   }
-  .menu .item:hover {
+  .menu :deep(.item:hover) {
     color: var(--color-text);
   }
 }
@@ -114,7 +114,7 @@ export default {
   }
 }
 
-.menu .item {
+.menu :deep(.item) {
   font-weight: 600;
   font-size: 14px;
   padding: 10px 14px;
@@ -140,7 +140,7 @@ export default {
   }
 }
 
-hr {
+.menu :deep(hr) {
   margin: 4px 10px;
   background: rgba(128, 128, 128, 0.18);
   height: 1px;
@@ -148,7 +148,7 @@ hr {
   border: none;
 }
 
-.item-info {
+.menu :deep(.item-info) {
   padding: 10px 10px;
   display: flex;
   align-items: center;
