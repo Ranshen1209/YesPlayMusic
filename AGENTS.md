@@ -87,7 +87,7 @@ The main process is bundled with the same Webpack 4 + esbuild loader chain as th
 
 ### CI / Release
 
-`.github/workflows/build.yaml` runs the Release job on every tag push (`v*`) and on `master` push, in a matrix over `macos-latest`, `windows-latest`, and `ubuntu-22.04`. `samuelmeuli/action-electron-builder@v1.6.0` invokes `yarn run vue-cli-service electron:build` per platform; when the ref is a `v*` tag it uploads artifacts to a draft GitHub Release on the repo named in `vue.config.js` `publish.owner` (currently `Ranshen1209/YesPlayMusic` — change before forking).
+`.github/workflows/build.yaml` runs only via `workflow_dispatch` and rejects refs that are not `v*` tags. A matrix over `macos-latest`, `windows-latest`, and `ubuntu-22.04` builds each platform and uploads Actions Artifacts. After all three succeed, one `publish-release` job downloads those CI artifacts inside GitHub Actions, verifies the complete platform/update-manifest set, and creates a single draft GitHub Release.
 
 Two CI quirks must be preserved:
 - A "Force git to use HTTPS for github SSH URLs" step uses **three** `git config --global --add url."https://github.com/".insteadOf <ssh-form>` calls. Without `--add` the entries overwrite each other; without all three forms `discord-rich-presence`'s git dependency on `discordjs/rpc` fails to resolve on runners with no SSH key.
@@ -101,7 +101,7 @@ To publish a version: bump `package.json` `version` to match (the tag must equal
 
 **Do NOT shuttle build artifacts through the local machine** (download-from-CI then re-upload, or uploading a local `electron:build`). It is slow over a home uplink (an ~89 MB DMG can need ~10 min and time out), and a local build's hashes won't match the CI-generated `latest*.yml`/`.blockmap` auto-update manifests. Local `electron:build-mac` is for *smoke-testing* a build only, never for release assets.
 
-**Known race:** `action-electron-builder@v1.6.0` has no cross-job lock, so the three matrix jobs can each create their own *draft* Release for the same tag, splitting assets across two drafts (e.g. mac in one, linux in the other; windows in both). If this happens, pick the draft to keep, move the missing platform's assets in, publish it (`gh release edit <tag> --draft=false --latest`), and delete the duplicate(s). Re-dispatching is cleaner than hand-merging when feasible.
+**Prevented race:** `action-electron-builder@v1.6.0` has no cross-job release lock. Never enable its `release` input in the matrix: doing so can split assets across multiple drafts. Matrix jobs must only upload Actions Artifacts; the single dependent `publish-release` job owns Release creation. Do not repair this race by routing large CI assets through a local machine.
 
 #### Release handoff checklist (required)
 

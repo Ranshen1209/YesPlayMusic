@@ -11,10 +11,14 @@ const checks = [
   [
     'AMLL dynamic background',
     'src/views/lyrics.vue',
-    /<BackgroundRender[\s\S]*:key="bgImageUrl"[\s\S]*:album="bgImageUrl"/,
+    /<BackgroundRender[\s\S]*:key="bgImageUrl"[\s\S]*:album="bgImageUrl"[\s\S]*:playing="!showLyrics"/,
   ],
   ['lyrics close transition', 'src/App.vue', /v-show="!showLyrics"/],
-  ['vibrancy lyrics integration', 'src/assets/css/global.scss', /\.lyrics-page/],
+  [
+    'vibrancy lyrics integration',
+    'src/assets/css/global.scss',
+    /\.lyrics-page/,
+  ],
   [
     'macOS native vibrancy',
     'src/background.js',
@@ -60,7 +64,11 @@ const checks = [
     'src/components/DailyTracksCard.vue',
     /height: 100%[\s\S]*object-position: center/,
   ],
-  ['top-level blurred menus', 'src/components/ContextMenu.vue', /<Teleport to="body">/],
+  [
+    'top-level blurred menus',
+    'src/components/ContextMenu.vue',
+    /<Teleport to="body">/,
+  ],
 ];
 
 const forbiddenChecks = [

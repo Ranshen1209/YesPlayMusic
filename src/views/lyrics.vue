@@ -1,11 +1,12 @@
 <template>
   <div class="lyrics-page" :class="{ 'no-lyric': noLyric }" :data-theme="theme">
     <div v-if="useDynamicBackground" class="amll-background">
+      <!-- 当前依赖版本的 playing 属性内部将 true 映射为 pause。 -->
       <BackgroundRender
         :key="bgImageUrl"
         class="amll-background-render"
         :album="bgImageUrl"
-        :playing="showLyrics"
+        :playing="!showLyrics"
         :has-lyric="!noLyric"
         :fps="settings.lyricsBackground === 'dynamic' ? 30 : 0"
         :flow-speed="settings.lyricsBackground === 'dynamic' ? 2 : 0"
