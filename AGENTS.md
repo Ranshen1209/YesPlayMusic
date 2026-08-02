@@ -103,6 +103,14 @@ To publish a version: bump `package.json` `version` to match (the tag must equal
 
 **Known race:** `action-electron-builder@v1.6.0` has no cross-job lock, so the three matrix jobs can each create their own *draft* Release for the same tag, splitting assets across two drafts (e.g. mac in one, linux in the other; windows in both). If this happens, pick the draft to keep, move the missing platform's assets in, publish it (`gh release edit <tag> --draft=false --latest`), and delete the duplicate(s). Re-dispatching is cleaner than hand-merging when feasible.
 
+#### Release handoff checklist (required)
+
+- Treat the final tag tree as the release source of truth. A commit being in `master` history does not prove its behavior survived a later rewrite; inspect the final source and run `yarn verify:customizations` before dispatching.
+- Confirm `git rev-parse <tag>^{}` is the intended commit, `package.json` version matches the tag, and the workflow is dispatched against that tag, not `master` or a feature branch.
+- After CI completes, inspect the draft release for macOS, Windows, and Linux assets plus every `latest*.yml`/`.blockmap` manifest. Do not call a release complete while any matrix platform is missing.
+- The public Latest release may still point to an older version while the new release is Draft. Publish the verified draft only after asset inspection; never tell users the release is current while it remains Draft.
+- Do not build locally and upload replacement assets. If the source or asset set is wrong, fix the source/tag and re-dispatch CI.
+
 ### Internationalization
 
 `src/locale/` holds JSON dictionaries; `vue-i18n` is configured at app bootstrap. The default language is inferred from `navigator.language` and persisted in `settings.lang` on first run. Supported: `en`, `zh-CN`, `zh-TW`, `tr`.

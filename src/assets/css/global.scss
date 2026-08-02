@@ -91,6 +91,19 @@ body[data-vibrancy='on'] {
     padding-bottom: 24px;
   }
 
+  // 新歌词页使用 AMLL 背景层；毛玻璃模式下让整页透出 Electron 原生材质。
+  .lyrics-page {
+    background: transparent;
+  }
+  .lyrics-page .amll-background,
+  .lyrics-page .blur-background,
+  .lyrics-page .background-tint {
+    display: none;
+  }
+}
+
+body[data-vibrancy='on'] .lyrics-page[data-theme='dark'] {
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.65);
 }
 
 body[data-vibrancy='on'] ::-webkit-scrollbar-track {

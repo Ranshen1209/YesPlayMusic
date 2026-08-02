@@ -1,8 +1,9 @@
 <template>
   <div id="app" :class="{ 'user-select-none': userSelectNone }">
-    <Scrollbar v-show="!showLyrics" ref="scrollbar" />
-    <Navbar v-show="showNavbar" ref="navbar" />
+    <Scrollbar v-show="!showLyrics && !lyricsClosing" ref="scrollbar" />
+    <Navbar v-show="showNavbar && !showLyrics && !lyricsClosing" ref="navbar" />
     <main
+      v-show="!showLyrics && !lyricsClosing"
       ref="main"
       :style="{ overflow: enableScrolling ? 'auto' : 'hidden' }"
       @scroll="handleScroll"
@@ -15,14 +16,22 @@
       </router-view>
     </main>
     <transition name="slide-up">
-      <Player v-if="enablePlayer" v-show="showPlayer" ref="player" />
+      <Player
+        v-if="enablePlayer"
+        v-show="showPlayer && !showLyrics && !lyricsClosing"
+        ref="player"
+      />
     </transition>
     <Toast />
     <ModalAddTrackToPlaylist v-if="isAccountLoggedIn" />
     <ModalNewPlaylist v-if="isAccountLoggedIn" />
     <ModalDownloadConfirm v-if="isElectron" />
     <ModalHiddenCards />
-    <transition v-if="enablePlayer" name="slide-up">
+    <transition
+      v-if="enablePlayer"
+      name="slide-up"
+      @after-leave="finishLyricsClosing"
+    >
       <Lyrics v-show="showLyrics" />
     </transition>
   </div>
@@ -59,6 +68,9 @@ export default {
     return {
       isElectron: process.env.IS_ELECTRON, // true || undefined
       userSelectNone: false,
+      // 原生毛玻璃下歌词页透明，关闭动画结束前不能显示主界面，否则会重影。
+      lyricsClosing: false,
+      lyricsClosingTimer: null,
     };
   },
   computed: {
@@ -84,12 +96,42 @@ export default {
       return this.$route.name !== 'lastfmCallback';
     },
   },
+  watch: {
+    showLyrics(show) {
+      clearTimeout(this.lyricsClosingTimer);
+      this.lyricsClosingTimer = null;
+      if (show) {
+        this.lyricsClosing = false;
+        return;
+      }
+      if (document.body.getAttribute('data-vibrancy') === 'on') {
+        this.lyricsClosing = true;
+        // transition 被卸载时 after-leave 不会触发，定时器负责兜底复位。
+        this.lyricsClosingTimer = setTimeout(() => {
+          this.finishLyricsClosing();
+        }, 450);
+      }
+    },
+  },
   created() {
     if (this.isElectron) ipcRenderer(this);
     window.addEventListener('keydown', this.handleKeydown);
     this.fetchData();
   },
+  beforeUnmount() {
+    clearTimeout(this.lyricsClosingTimer);
+    window.removeEventListener('keydown', this.handleKeydown);
+  },
+  beforeDestroy() {
+    clearTimeout(this.lyricsClosingTimer);
+    window.removeEventListener('keydown', this.handleKeydown);
+  },
   methods: {
+    finishLyricsClosing() {
+      clearTimeout(this.lyricsClosingTimer);
+      this.lyricsClosingTimer = null;
+      this.lyricsClosing = false;
+    },
     handleKeydown(e) {
       if (e.code === 'Space') {
         if (['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return false;

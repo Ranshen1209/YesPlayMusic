@@ -55,6 +55,19 @@ jobs:
           echo "::set-output name=unmver::${unm_version}"
         shell: bash
 
+      - name: Verify required customizations and release source
+        run: |
+          yarn verify:customizations
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            package_version="$(node -p "require('./package.json').version")"
+            if [[ "$GITHUB_REF_NAME" != "v${package_version}" ]]; then
+              echo "Tag ${GITHUB_REF_NAME} does not match package version ${package_version}" >&2
+              exit 1
+            fi
+          fi
+          echo "Building ${GITHUB_SHA} from ${GITHUB_REF}"
+        shell: bash
+
       - name: Install UNM dependencies for Windows
         if: runner.os == 'Windows'
         run: |
