@@ -76,14 +76,16 @@ export default {
   min-width: 136px;
   max-width: 240px;
   list-style: none;
-  background: rgba(255, 255, 255, 0.88);
-  box-shadow: 0 6px 12px -4px rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.68);
+  box-shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.24);
+  border: 1px solid rgba(255, 255, 255, 0.52);
+  -webkit-backdrop-filter: saturate(180%) blur(24px);
+  backdrop-filter: saturate(180%) blur(24px);
   border-radius: 12px;
   box-sizing: border-box;
   padding: 6px;
   z-index: 1000;
+  isolation: isolate;
   -webkit-app-region: no-drag;
   transition: background 125ms ease-out, opacity 125ms ease-out,
     transform 125ms ease-out;
@@ -95,10 +97,11 @@ export default {
 
 [data-theme='dark'] {
   .menu {
-    background: rgba(36, 36, 36, 0.78);
-    backdrop-filter: blur(16px) contrast(120%) brightness(60%);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 0 6px rgba(255, 255, 255, 0.08);
+    background: rgba(28, 28, 30, 0.66);
+    -webkit-backdrop-filter: saturate(160%) blur(24px) brightness(72%);
+    backdrop-filter: saturate(160%) blur(24px) brightness(72%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.52);
   }
   .menu .item:hover {
     color: var(--color-text);

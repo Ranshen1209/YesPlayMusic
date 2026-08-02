@@ -1,35 +1,28 @@
 <template>
   <div id="app" :class="{ 'user-select-none': userSelectNone }">
-    <Scrollbar v-show="!showLyrics && !lyricsClosing" ref="scrollbar" />
-    <Navbar v-show="showNavbar && !showLyrics && !lyricsClosing" ref="navbar" />
+    <Scrollbar v-show="!showLyrics" ref="scrollbar" />
+    <Navbar v-show="showNavbar" ref="navbar" />
     <main
-      v-show="!showLyrics && !lyricsClosing"
       ref="main"
       :style="{ overflow: enableScrolling ? 'auto' : 'hidden' }"
       @scroll="handleScroll"
     >
-      <keep-alive>
-        <router-view v-if="$route.meta.keepAlive"></router-view>
-      </keep-alive>
-      <router-view v-if="!$route.meta.keepAlive"></router-view>
+      <router-view v-slot="{ Component }">
+        <keep-alive>
+          <component :is="Component" v-if="$route.meta.keepAlive" />
+        </keep-alive>
+        <component :is="Component" v-if="!$route.meta.keepAlive" />
+      </router-view>
     </main>
     <transition name="slide-up">
-      <Player
-        v-if="enablePlayer"
-        v-show="showPlayer && !showLyrics && !lyricsClosing"
-        ref="player"
-      />
+      <Player v-if="enablePlayer" v-show="showPlayer" ref="player" />
     </transition>
     <Toast />
     <ModalAddTrackToPlaylist v-if="isAccountLoggedIn" />
     <ModalNewPlaylist v-if="isAccountLoggedIn" />
     <ModalDownloadConfirm v-if="isElectron" />
     <ModalHiddenCards />
-    <transition
-      v-if="enablePlayer"
-      name="slide-up"
-      @after-leave="lyricsClosing = false"
-    >
+    <transition v-if="enablePlayer" name="slide-up">
       <Lyrics v-show="showLyrics" />
     </transition>
   </div>
@@ -66,8 +59,6 @@ export default {
     return {
       isElectron: process.env.IS_ELECTRON, // true || undefined
       userSelectNone: false,
-      // 毛玻璃下歌词页透明，关闭时需等下滑动画结束再显示主界面，避免重影
-      lyricsClosing: false,
     };
   },
   computed: {
@@ -91,28 +82,6 @@ export default {
     },
     showNavbar() {
       return this.$route.name !== 'lastfmCallback';
-    },
-  },
-  watch: {
-    showLyrics(val) {
-      // 打开歌词页：复位标志并清掉兜底定时器。
-      if (val) {
-        this.lyricsClosing = false;
-        clearTimeout(this.lyricsClosingTimer);
-        return;
-      }
-      // 关闭歌词页且处于毛玻璃（歌词页透明）时，延迟显示主界面，
-      // 等下滑动画结束（@after-leave）再显示，避免透明歌词页透出主界面内容。
-      if (document.body.getAttribute('data-vibrancy') === 'on') {
-        this.lyricsClosing = true;
-        // 兜底：若包裹歌词页的 transition 因 enablePlayer 变化被卸载，
-        // @after-leave 不会触发，用与 slide-up 动画等长的定时器强制复位，
-        // 避免主界面被永久隐藏。
-        clearTimeout(this.lyricsClosingTimer);
-        this.lyricsClosingTimer = setTimeout(() => {
-          this.lyricsClosing = false;
-        }, 450);
-      }
     },
   },
   created() {
@@ -181,6 +150,7 @@ main::-webkit-scrollbar {
   transition: transform 0.4s;
 }
 .slide-up-enter,
+.slide-up-enter-from,
 .slide-up-leave-to {
   transform: translateY(100%);
 }

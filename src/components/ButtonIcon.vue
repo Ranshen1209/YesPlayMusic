@@ -1,10 +1,13 @@
 <template>
-  <button class="button-icon"><slot></slot></button>
+  <button class="button-icon" @click="$emit('click', $event)">
+    <slot></slot>
+  </button>
 </template>
 
 <script>
 export default {
   name: 'ButtonIcon',
+  emits: ['click'],
 };
 </script>
 
@@ -13,15 +16,15 @@ button {
   display: flex;
   justify-content: center;
   align-items: center;
+  font-size: 16px;
+  line-height: 1;
   padding: 8px;
   background: transparent;
   margin: 4px;
   border-radius: 25%;
   transition: 0.2s;
-  .svg-icon {
+  :slotted(.svg-icon) {
     color: var(--color-text);
-    height: 16px;
-    width: 16px;
   }
   &:first-child {
     margin-left: 0;

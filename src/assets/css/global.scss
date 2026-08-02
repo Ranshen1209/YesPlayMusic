@@ -91,20 +91,6 @@ body[data-vibrancy='on'] {
     padding-bottom: 24px;
   }
 
-  // 歌词页同样走整窗毛玻璃：去掉自身底色与专辑色背景层，透出原生 vibrancy。
-  // 浅色主题为深字配浅玻璃，本就清晰，不加光晕（白光晕会在文字周围结块成方框）。
-  .lyrics-page {
-    background: transparent;
-  }
-  .lyrics-page .lyrics-background,
-  .lyrics-page .gradient-background {
-    display: none;
-  }
-}
-
-// 歌词页深色主题是浅字，给一层深色光晕，保证在任意亮度的玻璃上都托得住。
-body[data-vibrancy='on'] .lyrics-page[data-theme='dark'] {
-  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.65);
 }
 
 body[data-vibrancy='on'] ::-webkit-scrollbar-track {

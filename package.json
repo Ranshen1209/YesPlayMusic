@@ -26,8 +26,18 @@
     "node": "14 || 16"
   },
   "dependencies": {
+    "@applemusic-like-lyrics/core": "0.5.2",
+    "@applemusic-like-lyrics/vue": "0.5.2",
     "@neteaseapireborn/api": "^4.29.7",
+    "@pixi/app": "7.4.3",
+    "@pixi/core": "7.4.3",
+    "@pixi/display": "7.4.3",
+    "@pixi/filter-blur": "7.4.3",
+    "@pixi/filter-bulge-pinch": "5.1.1",
+    "@pixi/filter-color-matrix": "7.4.3",
+    "@pixi/sprite": "7.4.3",
     "@unblockneteasemusic/rust-napi": "^0.4.0",
+    "@vue/compat": "3.5.30",
     "axios": "^0.26.1",
     "change-case": "^4.1.2",
     "cli-color": "^2.0.0",
@@ -71,18 +81,18 @@
     "svg-sprite-loader": "^6.0.11",
     "tunnel": "^0.0.6",
     "vscode-codicons": "^0.0.17",
-    "vue": "^2.6.11",
-    "vue-clipboard2": "^0.3.1",
-    "vue-gtag": "1",
-    "vue-i18n": "^8.22.0",
-    "vue-router": "^3.4.3",
+    "vue": "3.5.30",
+    "vue-gtag-next": "^1.14.0",
+    "vue-i18n": "^9.14.5",
+    "vue-router": "4.5.1",
     "vue-slider-component": "^3.2.5",
-    "vuex": "^3.4.0",
+    "vuex": "^4.1.0",
     "x11": "^2.3.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.40.1",
     "@types/node": "^17.0.0",
+    "@vue/compiler-sfc": "3.5.30",
     "@vue/cli-plugin-babel": "~4.5.0",
     "@vue/cli-plugin-eslint": "~4.5.0",
     "@vue/cli-plugin-pwa": "~4.5.0",
@@ -98,8 +108,7 @@
     "prettier": "2.5.1",
     "sass": "^1.26.11",
     "sass-loader": "^10.0.2",
-    "vue-cli-plugin-electron-builder": "~2.1.1",
-    "vue-template-compiler": "^2.6.11"
+    "vue-cli-plugin-electron-builder": "~2.1.1"
   },
   "resolutions": {
     "icon-gen": "3.0.0",

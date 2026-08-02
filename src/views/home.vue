@@ -174,7 +174,7 @@ export default {
   },
   activated() {
     this.loadData();
-    this.$parent.$refs.scrollbar.restorePosition();
+    this.$root.$refs.scrollbar.restorePosition();
   },
   methods: {
     isFirstVisible(section) {

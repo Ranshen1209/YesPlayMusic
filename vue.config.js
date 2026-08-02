@@ -43,6 +43,46 @@ module.exports = {
     },
   },
   chainWebpack(config) {
+    config.resolve.alias.set('vue', '@vue/compat');
+    config.resolve.alias.set(
+      'bezier-easing$',
+      path.join(__dirname, 'node_modules/bezier-easing/dist/bezier-easing.cjs')
+    );
+    // Webpack 4 cannot reliably preserve the default export interop between
+    // Pixi's ESM color package and @pixi/colord. Use their equivalent CJS
+    // entry points so AMLL can initialize on the Electron 13 renderer.
+    config.resolve.alias.set(
+      '@pixi/color$',
+      path.join(__dirname, 'node_modules/@pixi/color/lib/index.js')
+    );
+    config.resolve.alias.set(
+      '@pixi/colord$',
+      path.join(__dirname, 'node_modules/@pixi/colord/index.js')
+    );
+    config.resolve.alias.set(
+      '@pixi/colord/plugins/names$',
+      path.join(__dirname, 'node_modules/@pixi/colord/plugins/names.js')
+    );
+    config.resolve.alias.set(
+      '@applemusic-like-lyrics/core$',
+      path.join(
+        __dirname,
+        'node_modules/@applemusic-like-lyrics/core/dist/amll-core.mjs'
+      )
+    );
+    config.module
+      .rule('vue')
+      .use('vue-loader')
+      .tap(options => ({
+        ...options,
+        compilerOptions: {
+          ...(options.compilerOptions || {}),
+          compatConfig: {
+            MODE: 2,
+          },
+        },
+      }));
+
     config.module.rules.delete('svg');
     config.module.rule('svg').exclude.add(resolve('src/assets/icons')).end();
     config.module
@@ -65,12 +105,12 @@ module.exports = {
 
     config.module
       .rule('webpack4_es_fallback')
-      .test(/\.js$/)
+      .test(/\.[cm]?js$/)
       .include.add(/node_modules/)
       .end()
       .use('esbuild-loader')
       .loader('esbuild-loader')
-      .options({ target: 'es2015', format: 'cjs' })
+      .options({ target: 'es2015', charset: 'utf8' })
       .end();
 
     // LimitChunkCountPlugin 可以通过合并块来对块进行后期处理。用以解决 chunk 包太多的问题
@@ -80,6 +120,10 @@ module.exports = {
         minChunkSize: 10_000,
       },
     ]);
+    config.plugin('define').tap(args => {
+      args[0].__VUE_PROD_HYDRATION_MISMATCH_DETAILS__ = false;
+      return args;
+    });
   },
   // 添加插件的配置
   pluginOptions: {
@@ -178,12 +222,12 @@ module.exports = {
 
         config.module
           .rule('webpack4_es_fallback')
-          .test(/\.js$/)
+          .test(/\.[cm]?js$/)
           .include.add(/node_modules/)
           .end()
           .use('esbuild-loader')
           .loader('esbuild-loader')
-          .options({ target: 'es2015', format: 'cjs' })
+          .options({ target: 'es2015', charset: 'utf8' })
           .end();
       },
       // 渲染线程的配置文件

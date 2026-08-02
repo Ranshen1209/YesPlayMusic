@@ -445,6 +445,7 @@ export default {
   .play {
     height: 42px;
     width: 42px;
+    font-size: 24px;
     .svg-icon {
       width: 24px;
       height: 24px;
@@ -462,6 +463,7 @@ export default {
   align-items: center;
   .expand {
     margin-left: 24px;
+    font-size: 24px;
     .svg-icon {
       height: 24px;
       width: 24px;

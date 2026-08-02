@@ -34,6 +34,10 @@ export default {
 
 <style scoped>
 .svg-icon {
+  display: block;
+  width: 1em;
+  height: 1em;
+  flex-shrink: 0;
   fill: currentColor;
 }
 </style>

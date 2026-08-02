@@ -1,11 +1,11 @@
-import Vue from 'vue';
-import VueGtag from 'vue-gtag';
+import { createApp } from 'vue';
+import VueGtag, { trackRouter } from 'vue-gtag-next';
 import App from './App.vue';
 import router from './router';
 import store from './store';
 import i18n from '@/locale';
-import '@/assets/icons';
-import '@/utils/filters';
+import registerIcons from '@/assets/icons';
+import filters from '@/utils/filters';
 import './registerServiceWorker';
 import { dailyTask } from '@/utils/common';
 import '@/assets/css/global.scss';
@@ -28,21 +28,20 @@ console.log(
   'background:unset;color:unset;'
 );
 
-Vue.use(
-  VueGtag,
-  {
-    config: { id: 'G-KMJJCFZDKF' },
-  },
-  router
-);
-Vue.config.productionTip = false;
-
 NProgress.configure({ showSpinner: false, trickleSpeed: 100 });
 dailyTask();
 
-new Vue({
-  i18n,
-  store,
-  router,
-  render: h => h(App),
-}).$mount('#app');
+const app = createApp(App);
+
+app.use(store);
+app.use(router);
+app.use(i18n);
+app.use(VueGtag, {
+  property: { id: 'G-KMJJCFZDKF' },
+});
+trackRouter(router);
+
+registerIcons(app);
+Object.entries(filters).forEach(([name, filter]) => app.filter(name, filter));
+
+app.mount('#app');
