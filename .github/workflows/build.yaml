@@ -68,18 +68,6 @@ jobs:
           echo "Building ${GITHUB_SHA} from ${GITHUB_REF}"
         shell: bash
 
-      - name: Verify macOS release signing credentials
-        if: runner.os == 'macOS' && startsWith(github.ref, 'refs/tags/v')
-        env:
-          CSC_LINK: ${{ secrets.CSC_LINK }}
-          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
-        run: |
-          if [[ -z "$CSC_LINK" || -z "$CSC_KEY_PASSWORD" ]]; then
-            echo "macOS release signing requires CSC_LINK and CSC_KEY_PASSWORD repository secrets" >&2
-            exit 1
-          fi
-        shell: bash
-
       - name: Install UNM dependencies for Windows
         if: runner.os == 'Windows'
         run: |
@@ -113,8 +101,9 @@ jobs:
           VUE_APP_ELECTRON_API_URL_DEV: http://127.0.0.1:10754
           VUE_APP_LASTFM_API_KEY: 09c55292403d961aa517ff7f5e8a3d9c
           VUE_APP_LASTFM_API_SHARED_SECRET: 307c9fda32b3904e53654baff215cb67
-          CSC_LINK: ${{ secrets.CSC_LINK }}
-          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          # The project currently ships macOS artifacts unsigned. Keep this
+          # explicit so a runner identity cannot change release behavior.
+          CSC_IDENTITY_AUTO_DISCOVERY: false
         with:
           # GitHub token, automatically provided to the action
           # (No need to define this secret in the repo settings)
