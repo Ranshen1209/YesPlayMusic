@@ -45,18 +45,16 @@
           <div class="like-button">
             <button-icon
               :title="
-                player.isCurrentTrackLiked
-                  ? $t('player.unlike')
-                  : $t('player.like')
+                isCurrentTrackLiked ? $t('player.unlike') : $t('player.like')
               "
               @click="likeATrack(currentTrack.id)"
             >
               <svg-icon
-                v-show="!player.isCurrentTrackLiked"
+                v-show="!isCurrentTrackLiked"
                 icon-class="heart"
               ></svg-icon>
               <svg-icon
-                v-show="player.isCurrentTrackLiked"
+                v-show="isCurrentTrackLiked"
                 icon-class="heart-solid"
               ></svg-icon>
             </button-icon>
@@ -203,7 +201,7 @@ export default {
     };
   },
   computed: {
-    ...mapState(['player', 'playerState', 'settings', 'data']),
+    ...mapState(['player', 'playerState', 'settings', 'data', 'liked']),
     currentTrack() {
       return this.playerState.currentTrack || this.player.currentTrack;
     },
@@ -224,6 +222,9 @@ export default {
     },
     playing() {
       return this.playerState.playing;
+    },
+    isCurrentTrackLiked() {
+      return this.liked.songs.includes(this.currentTrack.id);
     },
     audioSource() {
       return this.player._howler?._src.includes('kuwo.cn')

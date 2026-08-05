@@ -55,6 +55,21 @@ const checks = [
   ],
   ['lyrics font settings', 'src/views/settings.vue', /lyricFontWeight/],
   [
+    'reactive liked-track controls',
+    'src/views/lyrics.vue',
+    /isCurrentTrackLiked\(\)[\s\S]*liked\.songs\.includes/,
+  ],
+  [
+    'lyrics scroll resynchronization',
+    'src/views/lyrics.vue',
+    /scheduleLyricResync[\s\S]*setCurrentTime\(this\.currentTime, true\)/,
+  ],
+  [
+    'normal playback leaves Personal FM mode',
+    'src/utils/Player.js',
+    /playTrackOnListByID\([\s\S]*this\._isPersonalFM = false/,
+  ],
+  [
     'compact For You cards',
     'src/views/home.vue',
     /height: clamp\(190px, 25vh, 280px\)/,

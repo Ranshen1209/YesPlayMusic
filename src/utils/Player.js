@@ -927,6 +927,7 @@ export default class {
     });
   }
   playTrackOnListByID(id, listName = 'default') {
+    this._isPersonalFM = false;
     if (listName === 'default') {
       this._current = this._list.findIndex(t => t === id);
     }

@@ -73,7 +73,7 @@
             @click="likeATrack(currentTrack.id)"
           >
             <svg-icon
-              :icon-class="player.isCurrentTrackLiked ? 'heart-solid' : 'heart'"
+              :icon-class="isCurrentTrackLiked ? 'heart-solid' : 'heart'"
             />
           </ButtonIcon>
           <ButtonIcon
@@ -106,22 +106,24 @@
       </div>
 
       <div class="media-controls">
-        <ButtonIcon
-          v-show="!playerState.isPersonalFM"
-          :title="
-            playerState.repeatMode === 'one'
-              ? $t('player.repeatTrack')
-              : $t('player.repeat')
-          "
-          :class="{ active: playerState.repeatMode !== 'off' }"
-          @click="switchRepeatMode"
-        >
-          <svg-icon
-            :icon-class="
-              playerState.repeatMode === 'one' ? 'repeat-1' : 'repeat'
+        <div class="secondary-controls secondary-controls-left">
+          <ButtonIcon
+            v-show="!playerState.isPersonalFM"
+            :title="
+              playerState.repeatMode === 'one'
+                ? $t('player.repeatTrack')
+                : $t('player.repeat')
             "
-          />
-        </ButtonIcon>
+            :class="{ active: playerState.repeatMode !== 'off' }"
+            @click="switchRepeatMode"
+          >
+            <svg-icon
+              :icon-class="
+                playerState.repeatMode === 'one' ? 'repeat-1' : 'repeat'
+              "
+            />
+          </ButtonIcon>
+        </div>
 
         <div class="primary-controls">
           <ButtonIcon
@@ -150,30 +152,32 @@
           </ButtonIcon>
         </div>
 
-        <ButtonIcon
-          v-show="!playerState.isPersonalFM"
-          :title="$t('player.shuffle')"
-          :class="{ active: playerState.shuffle }"
-          @click="switchShuffle"
-        >
-          <svg-icon icon-class="shuffle" />
-        </ButtonIcon>
+        <div class="secondary-controls secondary-controls-right">
+          <ButtonIcon
+            v-show="!playerState.isPersonalFM"
+            :title="$t('player.shuffle')"
+            :class="{ active: playerState.shuffle }"
+            @click="switchShuffle"
+          >
+            <svg-icon icon-class="shuffle" />
+          </ButtonIcon>
 
-        <ButtonIcon
-          v-if="isShowLyricTypeSwitch && settings.showLyricsTranslation"
-          :title="
-            $t(
-              lyricType === 'translation'
-                ? 'player.translationLyric'
-                : 'player.PronunciationLyric'
-            )
-          "
-          @click="switchLyricType"
-        >
-          <span class="lyric-switch-icon">{{
-            lyricType === 'translation' ? '译' : '音'
-          }}</span>
-        </ButtonIcon>
+          <ButtonIcon
+            v-if="isShowLyricTypeSwitch && settings.showLyricsTranslation"
+            :title="
+              $t(
+                lyricType === 'translation'
+                  ? 'player.translationLyric'
+                  : 'player.PronunciationLyric'
+              )
+            "
+            @click="switchLyricType"
+          >
+            <span class="lyric-switch-icon">{{
+              lyricType === 'translation' ? '译' : '音'
+            }}</span>
+          </ButtonIcon>
+        </div>
       </div>
 
       <div class="volume-control">
@@ -199,6 +203,8 @@
     <section class="lyrics-panel">
       <div v-if="!noLyric" class="amll-player" :style="lyricStyle">
         <LyricPlayer
+          :key="currentTrack.id"
+          ref="lyricPlayer"
           class="amll-player-content"
           :lyric-lines="amllLyricLines"
           :current-time="currentTime"
@@ -210,6 +216,8 @@
           :word-fade-width="0.5"
           @line-click="clickLyricLine"
           @line-contextmenu="openLyricMenu"
+          @pointerup="scheduleLyricResync"
+          @wheel.passive="scheduleLyricResync"
         />
       </div>
       <div v-else class="empty-lyrics">♪</div>
@@ -261,6 +269,7 @@ export default {
       lyricType: 'translation',
       currentTime: 0,
       progressTimer: null,
+      lyricResyncTimer: null,
       clockTimer: null,
       date: this.formatTime(new Date()),
       isFullscreen: !!document.fullscreenElement,
@@ -269,7 +278,7 @@ export default {
     };
   },
   computed: {
-    ...mapState(['player', 'playerState', 'settings', 'showLyrics']),
+    ...mapState(['player', 'playerState', 'settings', 'showLyrics', 'liked']),
     currentTrack() {
       return this.playerState.currentTrack || this.player.currentTrack || {};
     },
@@ -312,6 +321,9 @@ export default {
     volumeIcon() {
       if (this.volume === 0) return 'volume-mute';
       return this.volume > 0.5 ? 'volume' : 'volume-half';
+    },
+    isCurrentTrackLiked() {
+      return this.liked.songs.includes(this.currentTrack.id);
     },
     noLyric() {
       return this.lyric.length === 0;
@@ -427,6 +439,7 @@ export default {
     ...mapActions(['likeATrack', 'showToast']),
     cleanup() {
       clearInterval(this.clockTimer);
+      clearTimeout(this.lyricResyncTimer);
       this.stopProgressSync();
       document.removeEventListener('keydown', this.handleKeydown);
       document.removeEventListener(
@@ -455,6 +468,7 @@ export default {
     },
     updateProgress(value) {
       this.player.progress = value;
+      this.$nextTick(() => this.resyncLyricPosition());
     },
     updateVolume(value) {
       this.player.volume = value;
@@ -511,6 +525,20 @@ export default {
       const line = this.amllLyricLines[event.lineIndex];
       if (!line) return;
       this.player.seek(line.startTime / 1000);
+      this.scheduleLyricResync();
+    },
+    scheduleLyricResync() {
+      clearTimeout(this.lyricResyncTimer);
+      this.lyricResyncTimer = setTimeout(() => {
+        this.resyncLyricPosition();
+      }, 5200);
+    },
+    resyncLyricPosition() {
+      const exposedPlayer = this.$refs.lyricPlayer?.lyricPlayer;
+      const lyricPlayer = exposedPlayer?.value || exposedPlayer;
+      if (!lyricPlayer) return;
+      lyricPlayer.setCurrentTime(this.currentTime, true);
+      lyricPlayer.calcLayout(false, false);
     },
     openLyricMenu(event) {
       const line = this.amllLyricLines[event.lineIndex];
@@ -772,8 +800,22 @@ export default {
 }
 
 .media-controls {
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   margin-top: 10px;
+}
+
+.secondary-controls {
+  display: flex;
+  align-items: center;
+}
+
+.secondary-controls-left {
+  justify-content: flex-start;
+}
+
+.secondary-controls-right {
+  justify-content: flex-end;
 }
 
 .primary-controls {
