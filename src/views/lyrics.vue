@@ -454,14 +454,17 @@ export default {
     startProgressSync() {
       this.stopProgressSync();
       const sync = () => {
-        // Howler can report 0 while the renderer is still loading/playing a
-        // source. The Vuex snapshot is updated by Player's progress timer and
-        // is also the source used by the progress bar, so keep lyrics aligned
-        // with that stable value.
-        this.currentTime = Math.max(
-          0,
-          Math.round((this.playerState.progress || 0) * 1000)
-        );
+        const realtimeProgress = this.player.seek(null, false);
+        const snapshotProgress = Number(this.playerState.progress) || 0;
+        // Howler may briefly report 0 while a source is loading. Keep the
+        // smooth realtime value in normal playback and use the Vuex snapshot
+        // only for that invalid zero state.
+        const progress =
+          Number.isFinite(realtimeProgress) &&
+          (realtimeProgress > 0 || snapshotProgress <= 0)
+            ? realtimeProgress
+            : snapshotProgress;
+        this.currentTime = Math.max(0, Math.round(progress * 1000));
       };
       sync();
       this.progressTimer = setInterval(sync, 50);

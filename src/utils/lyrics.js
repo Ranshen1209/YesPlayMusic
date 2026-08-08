@@ -47,9 +47,7 @@ function parseLyric(lrc) {
     while (low <= high) {
       const mid = Math.floor((low + high) / 2);
       const midTime = parsedLyrics[mid].time;
-      if (midTime === time) {
-        return mid;
-      } else if (midTime < time) {
+      if (midTime <= time) {
         low = mid + 1;
       } else {
         high = mid - 1;

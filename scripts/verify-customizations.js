@@ -94,6 +94,11 @@ const checks = [
     '.github/workflows/build.yaml',
     /Normalize Windows release filenames[\s\S]*normalized="\$\{file\/\/ \/-\}"[\s\S]*Update manifest references missing asset/,
   ],
+  [
+    'stable duplicate lyric timestamps',
+    'src/utils/lyrics.js',
+    /midTime <= time[\s\S]*return low/,
+  ],
 ];
 
 const forbiddenChecks = [
