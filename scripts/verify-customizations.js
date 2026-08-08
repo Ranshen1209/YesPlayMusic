@@ -85,9 +85,9 @@ const checks = [
     /<Teleport to="body">/,
   ],
   [
-    'single CI release publisher',
+    'unsigned macOS release with single CI publisher',
     '.github/workflows/build.yaml',
-    /release: false[\s\S]*publish-release:/,
+    /CSC_IDENTITY_AUTO_DISCOVERY: false[\s\S]*release: false[\s\S]*publish-release:/,
   ],
   [
     'release asset names match update manifests',
