@@ -360,7 +360,7 @@ export default {
         const nextTime = visibleLines[index + 1]?.time * 1000;
         const endTime = Math.max(
           startTime + 1,
-          Math.round(nextTime || duration)
+          Math.round(nextTime ?? duration)
         );
         const translatedLyric = this.findSecondaryLyric(this.tlyric, line);
         const romanLyric = this.findSecondaryLyric(this.romalyric, line);

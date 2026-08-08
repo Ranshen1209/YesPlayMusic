@@ -99,6 +99,16 @@ const checks = [
     'src/utils/lyrics.js',
     /midTime <= time[\s\S]*return low/,
   ],
+  [
+    'zero timestamp lyric duration handling',
+    'src/views/lyrics.vue',
+    /Math\.round\(nextTime \?\? duration\)/,
+  ],
+  [
+    'serializable Electron download payload',
+    'src/utils/download.js',
+    /createDownloadPayload[\s\S]*JSON\.parse\(JSON\.stringify\(payload\)\)/,
+  ],
 ];
 
 const forbiddenChecks = [

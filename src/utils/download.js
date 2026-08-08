@@ -17,6 +17,30 @@ function t(key, payload) {
   return locale.t(key, payload);
 }
 
+function serializeArtists(track) {
+  return (track?.ar || track?.artists || []).filter(Boolean).map(artist => ({
+    id: artist.id,
+    name: artist.name || '',
+  }));
+}
+
+function createDownloadPayload(track, url, folder, subFolder, meta) {
+  const payload = {
+    id: track.id,
+    url,
+    track: {
+      name: track.name || '',
+      ar: serializeArtists(track),
+    },
+    folder,
+    subFolder,
+    meta,
+  };
+
+  // Vue state contains Proxy objects, which Electron IPC cannot clone.
+  return JSON.parse(JSON.stringify(payload));
+}
+
 async function fetchSongUrl(id, br) {
   const result = await getMP3(String(id), br);
   const item = result?.data?.[0];
@@ -175,7 +199,7 @@ export async function downloadTracks(tracks, options = {}) {
     list.map(track => ({
       id: track.id,
       name: track.name,
-      ar: track.ar || track.artists || [],
+      ar: serializeArtists(track),
       subFolder,
       status: 'pending',
       startedAt: now,
@@ -194,17 +218,10 @@ export async function downloadTracks(tracks, options = {}) {
         fetchSongUrl(track.id, br),
         buildMetaForTrack(track.id, settings),
       ]);
-      const result = await ipcRenderer.invoke('download:track', {
-        id: track.id,
-        url,
-        track: {
-          name: track.name,
-          ar: track.ar || track.artists,
-        },
-        folder,
-        subFolder,
-        meta,
-      });
+      const result = await ipcRenderer.invoke(
+        'download:track',
+        createDownloadPayload(track, url, folder, subFolder, meta)
+      );
       store.commit('updateDownloadTask', {
         id: track.id,
         patch: result.ok
