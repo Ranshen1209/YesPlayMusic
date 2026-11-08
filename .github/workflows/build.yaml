@@ -115,10 +115,12 @@ jobs:
 
       - name: Smoke test packaged Windows app and native background
         if: runner.os == 'Windows'
+        timeout-minutes: 5
         run: node scripts/smoke-electron.js dist_electron/win-unpacked/YesPlayMusic.exe
 
       - name: Smoke test packaged macOS app
         if: runner.os == 'macOS'
+        timeout-minutes: 5
         run: |
           arch="$(node -p 'process.arch')"
           app_dir=mac
@@ -128,6 +130,7 @@ jobs:
 
       - name: Smoke test packaged Linux app
         if: runner.os == 'Linux'
+        timeout-minutes: 5
         run: dbus-run-session -- xvfb-run -a node scripts/smoke-electron.js dist_electron/linux-unpacked/yesplaymusic
 
       - name: Save application smoke screenshots

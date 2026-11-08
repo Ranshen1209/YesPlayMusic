@@ -25,6 +25,23 @@ async function freePort() {
   return port;
 }
 
+async function closeApplication() {
+  if (!app) return;
+  const closingApp = app;
+  app = null;
+  let timedOut = false;
+  const timeout = setTimeout(() => {
+    timedOut = true;
+    closingApp.process().kill('SIGKILL');
+  }, 10000);
+  try {
+    await closingApp.close();
+    assert.equal(timedOut, false, 'Application did not quit within 10 seconds');
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 async function launch() {
   const args = [`--user-data-dir=${profile}`];
   if (!executablePath) args.push(path.resolve('dist_electron/bundled'));
@@ -77,6 +94,10 @@ async function launch() {
     location.hash = '/settings';
   });
   await page.waitForSelector('.settings-page');
+  if (process.platform !== 'darwin') {
+    // 隔离测试退出时不等待默认的确认对话框，也不把窗口留在托盘。
+    await page.locator('select:has(option[value="exit"])').selectOption('exit');
+  }
   console.log('Application startup:', JSON.stringify(info));
   return page;
 }
@@ -121,8 +142,7 @@ async function main() {
       await expect(checkbox).toBeChecked();
       if (process.platform === 'darwin') {
         // macOS 保持重启生效，同时验证新运行时能恢复已保存的原生毛玻璃。
-        await app.close();
-        app = null;
+        await closeApplication();
         page = await launch();
         page.on('pageerror', error => errors.push(error.message));
       }
@@ -203,6 +223,7 @@ async function main() {
     'Native background checks:',
     JSON.stringify(await materialState())
   );
+  await closeApplication();
   console.log('Release smoke check passed.');
 }
 
@@ -220,7 +241,7 @@ main()
     process.exitCode = 1;
   })
   .finally(async () => {
-    if (app) await app.close();
+    await closeApplication();
     fs.rmSync(profile, {
       recursive: true,
       force: true,
