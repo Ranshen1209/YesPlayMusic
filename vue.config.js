@@ -43,6 +43,14 @@ module.exports = {
     },
   },
   chainWebpack(config) {
+    // 旧版 Terser 的磁盘缓存硬编码 MD4，Node 22 / OpenSSL 3 不再支持。
+    // 仅关闭该缓存，避免为整个构建进程开启 legacy crypto provider。
+    if (config.optimization.minimizers.has('terser')) {
+      config.optimization.minimizer('terser').tap(args => {
+        args[0].cache = false;
+        return args;
+      });
+    }
     config.resolve.alias.set('vue', '@vue/compat');
     config.resolve.alias.set(
       'bezier-easing$',
@@ -130,6 +138,8 @@ module.exports = {
     // electron-builder的配置文件
     electronBuilder: {
       nodeIntegration: true,
+      // 页面由内置 HTTP 服务提供，资源也使用同源路径以兼容 Chromium 的模块加载。
+      customFileProtocol: '/',
       externals: ['@unblockneteasemusic/rust-napi', 'node-id3', 'metaflac-js'],
       builderOptions: {
         productName: 'YesPlayMusic',
@@ -211,6 +221,14 @@ module.exports = {
       },
       // 主线程的配置文件
       chainWebpackMainProcess: config => {
+        if (config.plugins.has('uglify')) {
+          // Electron 插件已单独注册 Terser，避免 Webpack 再运行默认压缩器。
+          config.optimization.minimize(false);
+          config.plugin('uglify').tap(args => {
+            args[0].cache = false;
+            return args;
+          });
+        }
         config.plugin('define').tap(args => {
           args[0]['IS_ELECTRON'] = true;
           return args;

@@ -716,15 +716,27 @@
         </div>
       </div>
 
-      <div v-if="isElectron && isMac" class="item">
+      <div v-if="isElectron && (isMac || isWindows)" class="item">
         <div class="left">
           <div class="title">{{ $t('settings.enableVibrancy') }}</div>
+          <div class="description">
+            {{
+              $t(
+                isMac
+                  ? 'settings.vibrancyMacDescription'
+                  : vibrancySupported
+                  ? 'settings.vibrancyWindowsDescription'
+                  : 'settings.vibrancyWindowsUnsupported'
+              )
+            }}
+          </div>
         </div>
         <div class="right">
           <div class="toggle">
             <input
               id="enable-vibrancy"
               v-model="enableVibrancy"
+              :disabled="!vibrancySupported"
               type="checkbox"
               name="enable-vibrancy"
             />
@@ -1129,6 +1141,7 @@ import {
   getDefaultDownloadFolder,
 } from '@/utils/download';
 import pkg from '../../package.json';
+import { isWindows } from '@/utils/platform';
 
 const electron =
   process.env.IS_ELECTRON === true ? window.require('electron') : null;
@@ -1158,6 +1171,9 @@ export default {
       },
       recordedShortcut: [],
       defaultDownloadFolder: '',
+      vibrancySupported:
+        process.env.IS_ELECTRON === true &&
+        ipcRenderer.sendSync('getVibrancySupport') === true,
     };
   },
   computed: {
@@ -1187,6 +1203,9 @@ export default {
     },
     isMac() {
       return /macintosh|mac os x/i.test(navigator.userAgent);
+    },
+    isWindows() {
+      return isWindows;
     },
     isLinux() {
       return process.platform === 'linux';

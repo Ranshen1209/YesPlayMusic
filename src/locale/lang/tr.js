@@ -264,7 +264,11 @@ export default {
     },
     enableDiscordRichPresence: 'Discord gösterimini aktifleştir',
     showLibraryDefault: 'Kitaplık Varsayılanını göster',
-    enableVibrancy: 'Buzlu Cam Arka Planı (macOS, yeniden başlatma)',
+    enableVibrancy: 'Buzlu Cam Arka Planı',
+    vibrancyMacDescription: 'Yeniden başlatma gerekir.',
+    vibrancyWindowsDescription:
+      'Windows 11 akrilik efekti anında uygulanır. Sistem saydamlık ve yüksek karşıtlık ayarlarına uyar.',
+    vibrancyWindowsUnsupported: 'Windows 11 22H2 veya üzeri gerekir.',
     subTitleDefault: 'Show Alias for Subtitle by default',
     enableReversedMode: 'Enable Reversed Mode (Experimental)',
     enableCustomTitlebar: 'Enable custom title bar (Need restart)',

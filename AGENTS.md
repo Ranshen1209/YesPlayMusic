@@ -8,7 +8,8 @@ This is the v1.x maintenance branch of YesPlayMusic — a third-party Netease Cl
 
 ## Toolchain
 
-- **Node**: 14 or 16 (`package.json` engines). `mise.local.toml` pins `16.20.2`; `.nvmrc` has `14`. Use 16 unless reproducing a 14-only issue.
+- **Node**: 22.12+ on the Node 22 line (`package.json` engines). `.nvmrc`, `mise.local.toml`, and CI pin `22.23.2`; Electron 43's installer requires Node 22.
+- **Electron**: pinned to `43.8.7`, a supported branch that retains macOS 12 and Linux armv7l support. Windows native acrylic uses the public `setBackgroundMaterial` API on Windows 11 22H2+; never use undocumented AccentPolicy APIs or `transparent: true` for this feature.
 - **Package manager**: `yarn` (a 655KB `yarn.lock` is committed; do not switch to npm).
 - **Husky pre-commit** runs `npm run prettier` against `src/`. Format-on-save is expected.
 
@@ -35,7 +36,9 @@ yarn netease_api:run      # runs @neteaseapireborn/api on :3000
 
 The dev server proxies `^/api` → `http://localhost:3000` (see `vue.config.js`). The Electron renderer hits `VUE_APP_ELECTRON_API_URL_DEV` (default `http://127.0.0.1:10754`) instead — its main process bootstraps the API in-process via `src/electron/services.js`.
 
-There is **no test suite** configured. Don't claim test coverage; verify changes by running the app.
+`yarn verify:windows-vibrancy` runs focused Node regression checks for native material support, accessibility fallbacks, and lifecycle cleanup. These do not replace running the app; Windows compositor appearance still needs a Windows 11 desktop for visual verification.
+
+`node scripts/smoke-electron.js [packaged-executable]` checks startup, native modules, settings, and the isolated Last.fm callback. It uses a temporary profile and random loopback ports via `IS_TEST=true` and `YPM_TEST_API_PORT` / `YPM_TEST_RENDERER_PORT`, so it can run alongside an installed player. Release CI runs it on all three platforms. Without `IS_TEST`, the app keeps ports 10754 and 27232.
 
 ## Environment
 
@@ -54,6 +57,8 @@ Copy `.env.example` to `.env`. Key vars:
 A single Vue CLI 4 / Webpack 4 setup produces both the web bundle and the Electron app via `vue-cli-plugin-electron-builder`. `vue.config.js` is where most non-trivial config lives:
 
 - Webpack 4 + `esbuild-loader` (`target: es2015`) is used to transpile `node_modules` so modern ESM packages don't break the legacy webpack.
+- Terser's legacy MD4 disk cache is disabled for Node 22 / OpenSSL 3 compatibility. The main-process plugin already minifies, so Webpack's duplicate default minimizer is disabled there. Do not enable the legacy OpenSSL provider.
+- Desktop renderer assets use `/` (the same local HTTP origin as the HTML), not cross-origin `app://` module scripts. Keep this when changing the Electron build config.
 - `LimitChunkCountPlugin` caps output to 3 chunks — assume small bundle splitting; avoid introducing dynamic-import-heavy patterns expecting many chunks.
 - SVGs under `src/assets/icons` are loaded via `svg-sprite-loader` (used by `<SvgIcon>`); other SVGs go through the default file loader.
 - `@unblockneteasemusic/rust-napi` is declared as an electron-builder external — it's a native `.node` module loaded at runtime, not bundled.

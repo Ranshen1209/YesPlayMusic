@@ -271,7 +271,11 @@ export default {
     enableDiscordRichPresence: '启用 Discord Rich Presence',
     enableGlobalShortcut: '启用全局快捷键',
     showLibraryDefault: '启动后显示音乐库',
-    enableVibrancy: '毛玻璃背景 (仅 macOS，重启后生效)',
+    enableVibrancy: '毛玻璃背景',
+    vibrancyMacDescription: '重启后生效。',
+    vibrancyWindowsDescription:
+      '使用 Windows 11 原生亚克力材质，立即生效；遵循系统透明效果和高对比度设置。',
+    vibrancyWindowsUnsupported: '需要 Windows 11 22H2 或更新版本。',
     subTitleDefault: '副标题使用别名',
     enableReversedMode: '启用倒序播放功能 (实验性功能)',
     enableCustomTitlebar: '启用自定义标题栏 (重启后生效)',

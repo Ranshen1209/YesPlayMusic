@@ -5,7 +5,8 @@ import cloneDeep from 'lodash/cloneDeep';
 import shortcuts from '@/utils/shortcuts';
 import { createMenu } from './menu';
 import { registerDownloadHandlers } from './download';
-import { isCreateTray, isMac } from '@/utils/platform';
+import { isCreateTray, isMac, isWindows } from '@/utils/platform';
+import { updateWindowsVibrancy } from './windowsVibrancy';
 
 const clc = require('cli-color');
 const log = text => {
@@ -136,7 +137,12 @@ function parseSourceStringToList(executor, sourceString) {
 
 export function initIpcMain(win, store, trayEventEmitter) {
   ipcMain.on('getVibrancyStatus', event => {
-    event.returnValue = win.ypmVibrancyEnabled === true;
+    event.returnValue =
+      event.sender === win.webContents && win.ypmVibrancyEnabled === true;
+  });
+  ipcMain.on('getVibrancySupport', event => {
+    event.returnValue =
+      event.sender === win.webContents && win.ypmVibrancySupported === true;
   });
 
   // WIP: Do not enable logging as it has some issues in non-blocking I/O environment.
@@ -233,9 +239,10 @@ export function initIpcMain(win, store, trayEventEmitter) {
   });
 
   ipcMain.on('settings', (event, options) => {
+    if (event.sender !== win.webContents) return;
     store.set('settings', options);
-    // macOS：切换主题时同步原生毛玻璃材质的明暗。
-    if (isMac) {
+    // 切换主题时同步原生毛玻璃材质的明暗。
+    if (isMac || isWindows) {
       nativeTheme.themeSource =
         options.appearance === 'dark'
           ? 'dark'
@@ -243,6 +250,7 @@ export function initIpcMain(win, store, trayEventEmitter) {
           ? 'light'
           : 'system';
     }
+    updateWindowsVibrancy(win, options);
     if (options.enableGlobalShortcut) {
       registerGlobalShortcut(win, store);
     } else {

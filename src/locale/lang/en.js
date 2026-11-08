@@ -270,7 +270,11 @@ export default {
     enableDiscordRichPresence: 'Enable Discord Rich Presence',
     enableGlobalShortcut: 'Enable Global Shortcut',
     showLibraryDefault: 'Show Library after App Launched',
-    enableVibrancy: 'Frosted Glass Background (macOS only, restart required)',
+    enableVibrancy: 'Frosted Glass Background',
+    vibrancyMacDescription: 'Restart required.',
+    vibrancyWindowsDescription:
+      'Native Windows 11 acrylic. Applies immediately and respects system transparency and high contrast settings.',
+    vibrancyWindowsUnsupported: 'Requires Windows 11 22H2 or later.',
     subTitleDefault: 'Show Alias for Subtitle by default',
     enableReversedMode: 'Enable Reversed Mode (Experimental)',
     enableCustomTitlebar: 'Enable custom title bar (Need restart)',

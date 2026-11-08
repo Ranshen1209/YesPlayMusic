@@ -81,18 +81,18 @@
         "type": "github"
       }
     },
-    "nodejs16": {
+    "nodejs22": {
       "locked": {
-        "lastModified": 1700230496,
-        "owner": "nixos",
+        "lastModified": 1793865203,
+        "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "a71323f68d4377d12c04a5410e214495ec598d4c",
+        "rev": "c56a87d8e41ce69bd2af57eb35dcc117a9dfca33",
         "type": "github"
       },
       "original": {
-        "owner": "nixos",
+        "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "a71323f68d4377d12c04a5410e214495ec598d4c",
+        "ref": "nixos-26.05",
         "type": "github"
       }
     },
@@ -122,7 +122,7 @@
       "inputs": {
         "devenv": "devenv",
         "nixpkgs": "nixpkgs",
-        "nodejs16": "nodejs16",
+        "nodejs22": "nodejs22",
         "pre-commit-hooks": "pre-commit-hooks"
       }
     }

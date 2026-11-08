@@ -40,9 +40,12 @@ if ([undefined, null].includes(store.state.settings.lang)) {
 }
 
 changeAppearance(store.state.settings.appearance);
-let vibrancyEnabled = store.state.settings.enableVibrancy === true;
+let vibrancyEnabled = false;
 if (process.env.IS_ELECTRON === true) {
   const electron = window.require('electron');
+  electron.ipcRenderer.on('vibrancy-changed', (_, enabled) => {
+    changeVibrancy(enabled === true);
+  });
   vibrancyEnabled = electron.ipcRenderer.sendSync('getVibrancyStatus') === true;
 }
 changeVibrancy(vibrancyEnabled);

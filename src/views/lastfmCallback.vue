@@ -19,7 +19,9 @@ export default {
     return { message: '请稍等...', done: false };
   },
   created() {
-    const token = new URLSearchParams(window.location.search).get('token');
+    const token =
+      this.$route.query.token ||
+      new URLSearchParams(window.location.search).get('token');
     if (!token) {
       this.message = '连接失败，请重试或联系开发者（无Token）';
       this.done = true;
@@ -39,7 +41,8 @@ export default {
   },
   methods: {
     close() {
-      window.close();
+      if (process.env.IS_ELECTRON) this.$router.push('/settings');
+      else window.close();
     },
   },
 };

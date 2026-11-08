@@ -25,6 +25,46 @@ const checks = [
     /options\.vibrancy = 'under-window'/,
   ],
   [
+    'Windows native acrylic material',
+    'src/electron/windowsVibrancy.js',
+    /setBackgroundMaterial\(enabled \? 'acrylic' : 'none'\)/,
+  ],
+  [
+    'Windows accessibility fallback',
+    'src/electron/windowsVibrancy.js',
+    /!nativeTheme\.shouldUseHighContrastColors[\s\S]*!nativeTheme\.prefersReducedTransparency/,
+  ],
+  [
+    'Windows native material initialization',
+    'src/background.js',
+    /initWindowsVibrancy\(this\.window, this\.store\)/,
+  ],
+  [
+    'renderer uses applied native material state',
+    'src/store/index.js',
+    /let vibrancyEnabled = false[\s\S]*'vibrancy-changed'[\s\S]*sendSync\('getVibrancyStatus'\)/,
+  ],
+  [
+    'Windows glass respects the custom title bar',
+    'src/assets/css/global.scss',
+    /\[data-vibrancy='on'\]\[data-electron-os='win32'\] main\s*\{\s*top: 84px/,
+  ],
+  [
+    'native material setting checks platform support',
+    'src/views/settings.vue',
+    /isElectron && \(isMac \|\| isWindows\)[\s\S]*:disabled="!vibrancySupported"/,
+  ],
+  [
+    'isolated OAuth window callback after Electron upgrade',
+    'src/background.js',
+    /setWindowOpenHandler[\s\S]*nodeIntegration: false[\s\S]*did-create-window[\s\S]*will-redirect/,
+  ],
+  [
+    'same-origin desktop assets for modern Chromium',
+    'vue.config.js',
+    /customFileProtocol: '\/'/,
+  ],
+  [
     'Cookie login',
     'src/views/loginAccount.vue',
     /loginWithCookie\(\)[\s\S]*MUSIC_U=/,

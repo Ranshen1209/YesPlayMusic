@@ -42,16 +42,17 @@ async function runAll() {
 function loadDownloadModule(mocks) {
   const compiled = esbuild.buildSync({
     entryPoints: [SRC],
-    bundle: false,
+    bundle: true,
+    external: ['electron', 'axios', 'node-id3', 'metaflac-js'],
     write: false,
     format: 'cjs',
-    target: 'node16',
+    target: 'es2015',
     platform: 'node',
   });
   // Rewrite dynamic `import("axios")` to require() so our require-mock can intercept it.
   const code = compiled.outputFiles[0].text.replace(
-    /await import\("axios"\)/g,
-    'await Promise.resolve(require("axios"))'
+    /import\("axios"\)/g,
+    'Promise.resolve(require("axios"))'
   );
 
   const m = new Module(SRC);
@@ -315,10 +316,13 @@ test('download:track falls back to default folder when folder is empty', async (
 });
 
 test('download:openFolder calls shell.openPath with resolved folder', async () => {
+  const folder = await fs.promises.mkdtemp(
+    path.join(os.tmpdir(), 'ypm-folder-')
+  );
   let opened = null;
   const ipcMain = makeIpcMainMock();
   const electronMock = {
-    app: { getPath: () => '/Users/test' },
+    app: { getPath: () => folder },
     dialog: {},
     ipcMain,
     shell: {
@@ -331,11 +335,13 @@ test('download:openFolder calls shell.openPath with resolved folder', async () =
   const dl = loadDownloadModule({ electron: electronMock });
   dl.registerDownloadHandlers({});
 
-  await ipcMain.invoke('download:openFolder', '/some/path');
-  assert.strictEqual(opened, '/some/path');
+  const chosen = path.join(folder, 'chosen');
+  await ipcMain.invoke('download:openFolder', chosen);
+  assert.strictEqual(opened, chosen);
 
   await ipcMain.invoke('download:openFolder', '');
-  assert.strictEqual(opened, '/Users/test/YesPlayMusic');
+  assert.strictEqual(opened, path.join(folder, 'YesPlayMusic'));
+  await fs.promises.rm(folder, { recursive: true, force: true });
 });
 
 test('download:pickFolder returns null when canceled, path when chosen', async () => {

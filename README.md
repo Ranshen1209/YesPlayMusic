@@ -63,6 +63,10 @@
 
 ## 📦️ 安装
 
+本分支使用 Electron 43：Windows 10 及以上、macOS 12 及以上，以及对应架构的 Linux。
+Windows 11 22H2（build 22621）及以上可在设置中开启「毛玻璃背景」，使用系统原生亚克力材质并立即生效。
+该效果跟随应用明暗主题，并在系统关闭透明效果或启用高对比度时回退为不透明背景；较早的 Windows 版本保持普通背景。
+
 Electron 版本由 [@hawtim](https://github.com/hawtim) 和 [@qier222](https://github.com/qier222) 适配并维护，支持 macOS、Windows、Linux。
 
 访问本项目的 [Releases](https://github.com/qier222/YesPlayMusic/releases)
@@ -203,7 +207,7 @@ cd /home/runner/${REPL_SLUG}/music && yarn install && yarn run build
 
 如果在 Release 页面没有找到适合你的设备的安装包的话，你可以根据下面的步骤来打包自己的客户端。
 
-1. 打包 Electron 需要用到 Node.js 和 Yarn。可前往 [Node.js 官网](https://nodejs.org/zh-cn/) 下载安装包。安装 Node.js
+1. 打包 Electron 需要 Node.js 22.12+（推荐与 `.nvmrc` 一致的 22.23.2）和 Yarn 1。可前往 [Node.js 官网](https://nodejs.org/zh-cn/) 下载安装包。安装 Node.js
    后可在终端里执行 `npm install -g yarn` 来安装 Yarn。
 
 2. 使用 `git clone --recursive https://github.com/qier222/YesPlayMusic.git` 克隆本仓库到本地。

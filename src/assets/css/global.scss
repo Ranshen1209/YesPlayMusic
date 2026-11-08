@@ -105,6 +105,11 @@ body[data-vibrancy='on'] ::-webkit-scrollbar-track {
   background: transparent;
 }
 
+// Windows 导航栏额外包含 20px 的自定义标题栏间距。
+body[data-vibrancy='on'][data-electron-os='win32'] main {
+  top: 84px;
+}
+
 html {
   overflow-y: var(--html-overflow-y);
   min-width: 768px;

@@ -23,7 +23,7 @@ jobs:
       - name: Install Node.js, NPM and Yarn
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: '22.23.2'
           cache: 'yarn'
 
       - name: Force git to use HTTPS for github SSH URLs
@@ -45,9 +45,9 @@ jobs:
       - id: get_unm_version
         name: Get the installed UNM version
         run: |
-          yarn --ignore-optional
+          yarn install --frozen-lockfile --ignore-optional
           unm_version=$(node -e "console.log(require('./node_modules/@unblockneteasemusic/rust-napi/package.json').version)")
-          echo "::set-output name=unmver::${unm_version}"
+          echo "unmver=${unm_version}" >> "$GITHUB_OUTPUT"
         shell: bash
 
       - name: Verify required customizations and release source
@@ -57,6 +57,7 @@ jobs:
             exit 1
           fi
           yarn verify:customizations
+          yarn verify:windows-vibrancy
           package_version="$(node -p "require('./package.json').version")"
           if [[ "$GITHUB_REF_NAME" != "v${package_version}" ]]; then
             echo "Tag ${GITHUB_REF_NAME} does not match package version ${package_version}" >&2
@@ -111,6 +112,31 @@ jobs:
           release: false
 
           use_vue_cli: true
+
+      - name: Smoke test packaged Windows app and native background
+        if: runner.os == 'Windows'
+        run: node scripts/smoke-electron.js dist_electron/win-unpacked/YesPlayMusic.exe
+
+      - name: Smoke test packaged macOS app
+        if: runner.os == 'macOS'
+        run: |
+          arch="$(node -p 'process.arch')"
+          app_dir=mac
+          if [[ "$arch" == arm64 ]]; then app_dir=mac-arm64; fi
+          node scripts/smoke-electron.js "dist_electron/$app_dir/YesPlayMusic.app/Contents/MacOS/YesPlayMusic"
+        shell: bash
+
+      - name: Smoke test packaged Linux app
+        if: runner.os == 'Linux'
+        run: dbus-run-session -- xvfb-run -a node scripts/smoke-electron.js dist_electron/linux-unpacked/yesplaymusic
+
+      - name: Save application smoke screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-${{ runner.os }}
+          path: dist_electron/smoke-*.png
+          if-no-files-found: ignore
 
       - name: Normalize Windows release filenames
         if: runner.os == 'Windows'

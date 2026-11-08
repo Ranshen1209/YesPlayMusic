@@ -1,7 +1,6 @@
 'use strict';
 import {
   app,
-  protocol,
   BrowserWindow,
   shell,
   dialog,
@@ -17,7 +16,6 @@ import {
   isCreateTray,
   isCreateMpris,
 } from '@/utils/platform';
-import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import { startNeteaseMusicApi } from './electron/services';
 import { initIpcMain } from './electron/ipcMain.js';
 import { createMenu } from './electron/menu';
@@ -32,6 +30,8 @@ import express from 'express';
 import expressProxy from 'express-http-proxy';
 import Store from 'electron-store';
 import { createMpris, createDbus } from '@/electron/mpris';
+import { initWindowsVibrancy } from '@/electron/windowsVibrancy';
+import { apiPort, rendererPort, rendererOrigin } from '@/electron/runtimePorts';
 import { spawn } from 'child_process';
 const clc = require('cli-color');
 const log = text => {
@@ -110,11 +110,6 @@ class Background {
     // create Express app
     this.createExpressApp();
 
-    // Scheme must be registered before the app is ready
-    protocol.registerSchemesAsPrivileged([
-      { scheme: 'app', privileges: { secure: true, standard: true } },
-    ]);
-
     // handle app events
     this.handleAppEvents();
 
@@ -154,7 +149,7 @@ class Background {
 
     const expressApp = express();
     expressApp.use('/', express.static(__dirname + '/'));
-    expressApp.use('/api', expressProxy('http://127.0.0.1:10754'));
+    expressApp.use('/api', expressProxy(`http://127.0.0.1:${apiPort}`));
     expressApp.use('/player', (req, res) => {
       this.window.webContents
         .executeJavaScript('window.yesplaymusic.player')
@@ -167,7 +162,7 @@ class Background {
           });
         });
     });
-    this.expressApp = expressApp.listen(27232, '127.0.0.1');
+    this.expressApp = expressApp.listen(rendererPort, '127.0.0.1');
   }
 
   createWindow() {
@@ -179,8 +174,8 @@ class Background {
     const enableVibrancy =
       isMac && this.store.get('settings.enableVibrancy') === true;
 
-    // macOS：让原生毛玻璃材质的明暗跟随 App 主题，而不是系统外观
-    if (isMac) {
+    // 原生背景材质的明暗跟随 App 主题；自动模式仍由系统控制。
+    if (isMac || isWindows) {
       nativeTheme.themeSource =
         appearance === 'dark'
           ? 'dark'
@@ -204,15 +199,12 @@ class Background {
       webPreferences: {
         webSecurity: false,
         nodeIntegration: true,
-        enableRemoteModule: true,
         contextIsolation: false,
       },
     };
 
     // 非毛玻璃：按主题给一个不透明底色（避免加载时白/黑闪）。
-    // 毛玻璃：底色在下方 enableVibrancy 分支里设为全透明 '#00000000'，
-    // 让 webContents 透出后面的 NSVisualEffectView（Electron 13 实测：
-    // 省略 backgroundColor 不够，必须显式给透明色）。
+    // 毛玻璃必须显式使用全透明底色，让 webContents 透出原生背景材质。
     if (!enableVibrancy) {
       options.backgroundColor =
         ((appearance === undefined || appearance === 'auto') &&
@@ -265,13 +257,14 @@ class Background {
       options.vibrancy = 'under-window';
       options.visualEffectState = 'active';
       options.backgroundColor = '#00000000';
-      // macOS + Electron 13 实测：show:false 的窗口在随后 .show() 时会丢掉 vibrancy，
-      // 且无法再补回。毛玻璃时改用 show:true 创建（首帧是空的半透玻璃，而非白闪）。
+      // 首帧直接显示原生半透材质，避免首次 show 时的背景闪烁。
       options.show = true;
     }
 
     this.window = new BrowserWindow(options);
     this.window.ypmVibrancyEnabled = enableVibrancy;
+    this.window.ypmVibrancySupported = isMac;
+    initWindowsVibrancy(this.window, this.store);
 
     // hide menu bar on Microsoft Windows and Linux
     this.window.setMenuBarVisibility(false);
@@ -287,15 +280,12 @@ class Background {
       // 让窗口变成纯白，所以改用 detach 独立窗口打开。
       if (!process.env.IS_TEST) {
         this.window.webContents.openDevTools(
-          enableVibrancy ? { mode: 'detach' } : {}
+          this.window.ypmVibrancyEnabled ? { mode: 'detach' } : {}
         );
       }
     } else {
-      createProtocol('app');
       this.window.loadURL(
-        showLibraryDefault
-          ? 'http://localhost:27232/#/library'
-          : 'http://localhost:27232'
+        showLibraryDefault ? `${rendererOrigin}/#/library` : rendererOrigin
       );
     }
   }
@@ -377,28 +367,58 @@ class Background {
       this.window.webContents.send('isMaximized', false);
     });
 
-    this.window.webContents.on('new-window', function (e, url) {
-      e.preventDefault();
+    this.window.webContents.setWindowOpenHandler(({ url }) => {
       log('open url');
-      const excludeHosts = ['www.last.fm'];
-      const exclude = excludeHosts.find(host => url.includes(host));
-      if (exclude) {
-        const newWindow = new BrowserWindow({
-          width: 800,
-          height: 600,
-          titleBarStyle: 'default',
-          title: 'YesPlayMusic',
-          webPreferences: {
-            webSecurity: false,
-            nodeIntegration: true,
-            enableRemoteModule: true,
-            contextIsolation: false,
-          },
-        });
-        newWindow.loadURL(url);
-        return;
+      let target;
+      try {
+        target = new URL(url);
+      } catch (_) {
+        return { action: 'deny' };
       }
-      shell.openExternal(url);
+      if (target.protocol !== 'https:' && target.protocol !== 'http:') {
+        return { action: 'deny' };
+      }
+      if (target.protocol === 'https:' && target.hostname === 'www.last.fm') {
+        return {
+          action: 'allow',
+          overrideBrowserWindowOptions: {
+            width: 800,
+            height: 600,
+            titleBarStyle: 'default',
+            title: 'YesPlayMusic',
+            webPreferences: {
+              webSecurity: true,
+              nodeIntegration: false,
+              contextIsolation: true,
+              sandbox: true,
+            },
+          },
+        };
+      }
+      shell.openExternal(url).catch(error => log(error));
+      return { action: 'deny' };
+    });
+
+    this.window.webContents.on('did-create-window', child => {
+      // OAuth 网页保持沙箱隔离；本地回调交回主窗口，避免在远程页面启用 Node。
+      const handleCallback = (event, url) => {
+        const callback = new URL(url);
+        const token = callback.searchParams.get('token');
+        if (
+          callback.origin === rendererOrigin &&
+          callback.hash === '#/lastfm/callback' &&
+          token
+        ) {
+          event.preventDefault();
+          this.window.webContents.send(
+            'changeRouteTo',
+            `/lastfm/callback?token=${encodeURIComponent(token)}`
+          );
+          child.destroy();
+        }
+      };
+      child.webContents.on('will-redirect', handleCallback);
+      child.webContents.on('will-navigate', handleCallback);
     });
   }
 
