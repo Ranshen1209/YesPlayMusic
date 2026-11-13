@@ -1,6 +1,6 @@
 {
   "name": "yesplaymusic",
-  "version": "0.4.35",
+  "version": "0.4.36",
   "private": true,
   "description": "A third party music player for Netease Music",
   "author": "qier222<qier222@outlook.com>",
@@ -21,6 +21,7 @@
     "prettier": "npx prettier --write ./src",
     "verify:customizations": "node scripts/verify-customizations.js",
     "verify:windows-vibrancy": "node --test tests/unit/windows-vibrancy.spec.js",
+    "verify:release-build": "node --test tests/unit/release-build.spec.js",
     "netease_api:run": "npx @neteaseapireborn/api"
   },
   "main": "background.js",

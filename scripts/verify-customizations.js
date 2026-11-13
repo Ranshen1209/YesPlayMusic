@@ -162,7 +162,22 @@ const checks = [
   [
     'unsigned macOS release with single CI publisher',
     '.github/workflows/build.yaml',
-    /CSC_IDENTITY_AUTO_DISCOVERY: false[\s\S]*release: false[\s\S]*publish-release:/,
+    /CSC_IDENTITY_AUTO_DISCOVERY: false[\s\S]*run: bash scripts\/build-release\.sh[\s\S]*publish-release:/,
+  ],
+  [
+    'matrix platforms build independently',
+    '.github/workflows/build.yaml',
+    /strategy:\s*fail-fast: false/,
+  ],
+  [
+    'release build helper uses the non-publishing package script',
+    'scripts/build-release.sh',
+    /yarn electron:build/,
+  ],
+  [
+    'package builds explicitly disable publishing',
+    'package.json',
+    /"electron:build": "vue-cli-service electron:build -p never"/,
   ],
   [
     'release asset names match update manifests',

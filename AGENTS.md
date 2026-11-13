@@ -94,19 +94,21 @@ The main process is bundled with the same Webpack 4 + esbuild loader chain as th
 
 `.github/workflows/build.yaml` runs only via `workflow_dispatch` and rejects refs that are not `v*` tags. A matrix over `macos-15-intel`, `windows-latest`, and `ubuntu-22.04` builds each platform and uploads Actions Artifacts. macOS uses an Intel host to avoid the arm64 hosted-runner capacity issue and still builds both x64 and arm64 packages. After all three succeed, one `publish-release` job downloads those CI artifacts inside GitHub Actions, verifies the complete platform/update-manifest set, and creates a single draft GitHub Release.
 
+The matrix uses `fail-fast: false` so a platform failure does not cancel other builds. `scripts/build-release.sh` calls the package's `electron:build` script with publishing explicitly disabled (`-p never`). It retries only the observed macOS `hdiutil` Resource busy error, at most three attempts; compilation and other packaging errors fail immediately. `yarn verify:release-build` checks this behavior without building the app. Matrix jobs have read-only repository permissions; only `publish-release` receives a Release upload token.
+
 Two CI quirks must be preserved:
 - A "Force git to use HTTPS for github SSH URLs" step uses **three** `git config --global --add url."https://github.com/".insteadOf <ssh-form>` calls. Without `--add` the entries overwrite each other; without all three forms `discord-rich-presence`'s git dependency on `discordjs/rpc` fails to resolve on runners with no SSH key.
 - No snap target. The `snap` target requires `SNAPCRAFT_STORE_CREDENTIALS`; it was removed (along with the `Install Snapcraft` step) so Linux can finish.
 
 #### Cutting a release — always let CI build and upload (use `workflow_dispatch`)
 
-The release-upload step is gated on `release: ${{ startsWith(github.ref, 'refs/tags/v') }}` (build.yaml). Artifacts are uploaded **only when the run's ref is a `v*` tag** — a `master` push or a `workflow_dispatch` against a branch builds but uploads nothing.
+Dispatch the workflow against a `v*` tag. A branch dispatch fails the source checks before building, and a `master` push does not start this workflow. The matrix uploads only Actions Artifacts; the dependent publisher creates the Release after all platforms pass.
 
-To publish a version: bump `package.json` `version` to match (the tag must equal the package version or `action-electron-builder` errors), commit, create the matching `v*` tag, then **run the workflow via `workflow_dispatch` against that tag** — e.g. `gh workflow run build.yaml --ref v0.4.19`. Let GitHub's runners produce and upload every platform's artifacts.
+To publish a version: bump `package.json` `version` to match (the workflow checks that the tag equals the package version), commit, create the matching `v*` tag, then **run the workflow via `workflow_dispatch` against that tag** — e.g. `gh workflow run build.yaml --ref v0.4.36`. Let GitHub's runners produce and upload every platform's artifacts.
 
 **Do NOT shuttle build artifacts through the local machine** (download-from-CI then re-upload, or uploading a local `electron:build`). It is slow over a home uplink (an ~89 MB DMG can need ~10 min and time out), and a local build's hashes won't match the CI-generated `latest*.yml`/`.blockmap` auto-update manifests. Local `electron:build-mac` is for *smoke-testing* a build only, never for release assets.
 
-**Prevented race:** `action-electron-builder@v1.6.0` has no cross-job release lock. Never enable its `release` input in the matrix: doing so can split assets across multiple drafts. Matrix jobs must only upload Actions Artifacts; the single dependent `publish-release` job owns Release creation. Do not repair this race by routing large CI assets through a local machine.
+**Prevented race:** automatic electron-builder publishing in matrix jobs can split assets across multiple drafts. Keep the explicit `-p never` package command and build through `scripts/build-release.sh`; the old `action-electron-builder` action could still auto-publish when its `release` input was false. Matrix jobs must only upload Actions Artifacts; the single dependent `publish-release` job owns Release creation. Do not repair this race by routing large CI assets through a local machine.
 
 #### Release handoff checklist (required)
 

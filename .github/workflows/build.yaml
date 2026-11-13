@@ -9,8 +9,11 @@ on:
 jobs:
   release:
     runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
 
     strategy:
+      fail-fast: false
       matrix:
         # Intel runners avoid the current arm64 hosted-runner capacity issue.
         # electron-builder still produces both x64 and arm64 macOS packages.
@@ -60,6 +63,7 @@ jobs:
           fi
           yarn verify:customizations
           yarn verify:windows-vibrancy
+          yarn verify:release-build
           package_version="$(node -p "require('./package.json').version")"
           if [[ "$GITHUB_REF_NAME" != "v${package_version}" ]]; then
             echo "Tag ${GITHUB_REF_NAME} does not match package version ${package_version}" >&2
@@ -94,7 +98,6 @@ jobs:
         shell: bash
 
       - name: Build Electron app
-        uses: samuelmeuli/action-electron-builder@v1.6.0
         env:
           VUE_APP_NETEASE_API_URL: /api
           VUE_APP_ELECTRON_API_URL: /api
@@ -104,16 +107,10 @@ jobs:
           # macOS artifacts stay unsigned until a distributable Developer ID
           # identity is available. Keep this explicit on every CI runner.
           CSC_IDENTITY_AUTO_DISCOVERY: false
-        with:
-          # GitHub token, automatically provided to the action
-          # (No need to define this secret in the repo settings)
-          github_token: ${{ secrets.github_token }}
-
-          # Matrix jobs only build. A single job below publishes after every
-          # platform succeeds, preventing split draft releases.
-          release: false
-
-          use_vue_cli: true
+        # The package script explicitly passes -p never. Only publish-release
+        # receives an upload token and can create a GitHub Release.
+        run: bash scripts/build-release.sh
+        shell: bash
 
       - name: Smoke test packaged Windows app and native background
         if: runner.os == 'Windows'
