@@ -12,7 +12,9 @@ jobs:
 
     strategy:
       matrix:
-        os: [macos-latest, windows-latest, ubuntu-22.04]
+        # Intel runners avoid the current arm64 hosted-runner capacity issue.
+        # electron-builder still produces both x64 and arm64 macOS packages.
+        os: [macos-15-intel, windows-latest, ubuntu-22.04]
 
     steps:
       - name: Check out Git repository

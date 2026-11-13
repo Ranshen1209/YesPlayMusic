@@ -155,6 +155,11 @@ const checks = [
     /showLyrics\(show\)[\s\S]*this\.exitFullscreen\(\)/,
   ],
   [
+    'macOS release uses a supported Intel runner for both package architectures',
+    '.github/workflows/build.yaml',
+    /os: \[macos-15-intel, windows-latest, ubuntu-22\.04\]/,
+  ],
+  [
     'unsigned macOS release with single CI publisher',
     '.github/workflows/build.yaml',
     /CSC_IDENTITY_AUTO_DISCOVERY: false[\s\S]*release: false[\s\S]*publish-release:/,

@@ -92,7 +92,7 @@ The main process is bundled with the same Webpack 4 + esbuild loader chain as th
 
 ### CI / Release
 
-`.github/workflows/build.yaml` runs only via `workflow_dispatch` and rejects refs that are not `v*` tags. A matrix over `macos-latest`, `windows-latest`, and `ubuntu-22.04` builds each platform and uploads Actions Artifacts. After all three succeed, one `publish-release` job downloads those CI artifacts inside GitHub Actions, verifies the complete platform/update-manifest set, and creates a single draft GitHub Release.
+`.github/workflows/build.yaml` runs only via `workflow_dispatch` and rejects refs that are not `v*` tags. A matrix over `macos-15-intel`, `windows-latest`, and `ubuntu-22.04` builds each platform and uploads Actions Artifacts. macOS uses an Intel host to avoid the arm64 hosted-runner capacity issue and still builds both x64 and arm64 packages. After all three succeed, one `publish-release` job downloads those CI artifacts inside GitHub Actions, verifies the complete platform/update-manifest set, and creates a single draft GitHub Release.
 
 Two CI quirks must be preserved:
 - A "Force git to use HTTPS for github SSH URLs" step uses **three** `git config --global --add url."https://github.com/".insteadOf <ssh-form>` calls. Without `--add` the entries overwrite each other; without all three forms `discord-rich-presence`'s git dependency on `discordjs/rpc` fails to resolve on runners with no SSH key.
