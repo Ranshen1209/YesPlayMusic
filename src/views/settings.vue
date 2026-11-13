@@ -52,6 +52,27 @@
           </select>
         </div>
       </div>
+      <div class="item">
+        <div class="left">
+          <div class="title"> {{ $t('settings.themeColor.text') }} </div>
+        </div>
+        <div class="right">
+          <select v-model="themeColor">
+            <option value="default">
+              {{ $t('settings.themeColor.default') }}
+            </option>
+            <option value="sunset">
+              {{ $t('settings.themeColor.sunset') }}
+            </option>
+            <option value="ocean">
+              {{ $t('settings.themeColor.ocean') }}
+            </option>
+            <option value="forest">
+              {{ $t('settings.themeColor.forest') }}
+            </option>
+          </select>
+        </div>
+      </div>
       <div v-if="isElectron" class="item">
         <div class="left">
           <div class="title"> {{ $t('settings.trayIcon.text') }} </div>
@@ -279,7 +300,7 @@
         </div>
       </div>
 
-      <h3 v-if="isElectron">缓存</h3>
+      <h3 v-if="isElectron">{{ $t('settings.cache') }}</h3>
       <div v-if="isElectron" class="item">
         <div class="left">
           <div class="title">
@@ -1132,7 +1153,11 @@
 import { mapState, mapActions, mapMutations } from 'vuex';
 import { isLooseLoggedIn, doLogout } from '@/utils/auth';
 import { auth as lastfmAuth } from '@/api/lastfm';
-import { changeAppearance, bytesToSize } from '@/utils/common';
+import {
+  changeAppearance,
+  changeThemeColor,
+  bytesToSize,
+} from '@/utils/common';
 import { countDBSize, clearDB } from '@/utils/db';
 import { clearAppCaches } from '@/utils/cache';
 import {
@@ -1293,6 +1318,28 @@ export default {
           value,
         });
         changeAppearance(value);
+        const resolvedAppearance =
+          value === 'auto'
+            ? document.body?.getAttribute('data-theme') || 'light'
+            : value;
+        changeThemeColor(this.themeColor, resolvedAppearance);
+      },
+    },
+    themeColor: {
+      get() {
+        if (this.settings.themeColor === undefined) return 'default';
+        return this.settings.themeColor;
+      },
+      set(value) {
+        this.$store.commit('updateSettings', {
+          key: 'themeColor',
+          value,
+        });
+        const resolvedAppearance =
+          this.settings.appearance === 'auto'
+            ? document.body?.getAttribute('data-theme') || 'light'
+            : this.settings.appearance;
+        changeThemeColor(value, resolvedAppearance);
       },
     },
     trayIconTheme: {
@@ -2424,7 +2471,7 @@ input[type='number'] {
   border-radius: 6px;
 }
 .toggle input:checked + label:before {
-  background: var(--color-primary);
+  background: var(--color-primary-gradient);
   -webkit-transition: width 0.2s cubic-bezier(0, 0, 0, 0.1);
   transition: width 0.2s cubic-bezier(0, 0, 0, 0.1);
 }

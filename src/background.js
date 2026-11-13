@@ -33,6 +33,7 @@ import { createMpris, createDbus } from '@/electron/mpris';
 import { initWindowsVibrancy } from '@/electron/windowsVibrancy';
 import { apiPort, rendererPort, rendererOrigin } from '@/electron/runtimePorts';
 import { spawn } from 'child_process';
+import { repository, releasesUrl } from '@/config/repository';
 const clc = require('cli-color');
 const log = text => {
   console.log(`${clc.blueBright('[background.js]')} ${text}`);
@@ -293,7 +294,7 @@ class Background {
   checkForUpdates() {
     if (isDevelopment) return;
     log('checkForUpdates');
-    autoUpdater.checkForUpdatesAndNotify();
+    autoUpdater.setFeedURL(repository);
 
     const showNewVersionMessage = info => {
       dialog
@@ -307,15 +308,17 @@ class Background {
         })
         .then(result => {
           if (result.response === 0) {
-            shell.openExternal(
-              'https://github.com/qier222/YesPlayMusic/releases'
-            );
+            shell.openExternal(releasesUrl);
           }
         });
     };
 
     autoUpdater.on('update-available', info => {
       showNewVersionMessage(info);
+    });
+    autoUpdater.on('error', error => log(`Update check failed: ${error}`));
+    autoUpdater.checkForUpdatesAndNotify().catch(error => {
+      log(`Update check failed: ${error}`);
     });
   }
 

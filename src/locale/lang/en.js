@@ -147,6 +147,7 @@ export default {
     logout: 'LOGOUT',
     language: 'Languages',
     lyric: 'Lyric',
+    cache: 'Cache',
     others: 'Others',
     customization: 'Customization',
     MusicGenrePreference: {
@@ -226,6 +227,13 @@ export default {
       auto: 'Auto',
       light: 'Light',
       dark: 'Dark',
+    },
+    themeColor: {
+      text: 'Theme Color',
+      default: 'Original',
+      sunset: 'Sunset Gradient',
+      ocean: 'Ocean Gradient',
+      forest: 'Forest Gradient',
     },
     trayIcon: {
       text: 'Tray Icon Color',

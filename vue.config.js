@@ -1,5 +1,6 @@
 const webpack = require('webpack');
 const path = require('path');
+const { repository } = require('./src/config/repository');
 function resolve(dir) {
   return path.join(__dirname, dir);
 }
@@ -148,9 +149,7 @@ module.exports = {
         asar: true,
         publish: [
           {
-            provider: 'github',
-            owner: 'Ranshen1209',
-            repo: 'YesPlayMusic',
+            ...repository,
             vPrefixedTagName: true,
             releaseType: 'draft',
           },
@@ -182,7 +181,6 @@ module.exports = {
           ],
           publisherName: 'YesPlayMusic',
           icon: 'build/icons/icon.ico',
-          publish: ['github'],
         },
         linux: {
           target: [

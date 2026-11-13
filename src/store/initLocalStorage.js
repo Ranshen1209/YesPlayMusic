@@ -12,6 +12,7 @@ let localStorage = {
     lang: null,
     musicLanguage: 'all',
     appearance: 'auto',
+    themeColor: 'default',
     musicQuality: 320000,
     downloadBitrate: 320000,
     downloadFolder: '',

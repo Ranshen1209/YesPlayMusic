@@ -144,6 +144,7 @@ export default {
     logout: '登出',
     language: '語言',
     lyric: '歌詞',
+    cache: '快取',
     others: '其他',
     customization: '自訂',
     MusicGenrePreference: {
@@ -223,6 +224,13 @@ export default {
       auto: '自動',
       light: '淺色',
       dark: '深色',
+    },
+    themeColor: {
+      text: '主題顏色',
+      default: '原始顏色',
+      sunset: '日落漸變',
+      ocean: '海洋漸變',
+      forest: '森林漸變',
     },
     trayIcon: {
       text: '工作列圖示顏色',

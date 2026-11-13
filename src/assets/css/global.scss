@@ -40,9 +40,12 @@
   --color-text: #000;
   --color-primary: #335eea;
   --color-primary-bg: #eaeffd;
+  --color-primary-gradient: var(--color-primary);
   --color-secondary: #7a7a7b;
   --color-secondary-bg: #f5f5f7;
   --color-navbar-bg: rgba(255, 255, 255, 0.86);
+  --color-context-menu-bg: rgba(255, 255, 255, 0.52);
+  --color-context-menu-border: rgba(255, 255, 255, 0.62);
   --color-primary-bg-for-transparent: rgba(189, 207, 255, 0.28);
   --color-secondary-bg-for-transparent: rgba(209, 209, 214, 0.28);
   --html-overflow-y: overlay;
@@ -53,9 +56,12 @@
   --color-text: #ffffff;
   --color-primary: #335eea;
   --color-primary-bg: #bbcdff;
+  --color-primary-gradient: var(--color-primary);
   --color-secondary: #7a7a7b;
   --color-secondary-bg: #323232;
   --color-navbar-bg: rgba(34, 34, 34, 0.86);
+  --color-context-menu-bg: rgba(28, 28, 30, 0.58);
+  --color-context-menu-border: rgba(255, 255, 255, 0.18);
   --color-primary-bg-for-transparent: rgba(255, 255, 255, 0.12);
   --color-secondary-bg-for-transparent: rgba(255, 255, 255, 0.08);
 }

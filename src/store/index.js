@@ -3,7 +3,11 @@ import { markRaw } from 'vue';
 import state from './state';
 import mutations from './mutations';
 import actions from './actions';
-import { changeAppearance, changeVibrancy } from '@/utils/common';
+import {
+  changeAppearance,
+  changeThemeColor,
+  changeVibrancy,
+} from '@/utils/common';
 import Player from '@/utils/Player';
 // vuex 自定义插件
 import saveToLocalStorage from './plugins/localStorage';
@@ -40,6 +44,7 @@ if ([undefined, null].includes(store.state.settings.lang)) {
 }
 
 changeAppearance(store.state.settings.appearance);
+changeThemeColor(store.state.settings.themeColor);
 let vibrancyEnabled = false;
 if (process.env.IS_ELECTRON === true) {
   const electron = window.require('electron');
@@ -55,6 +60,7 @@ window
   .addEventListener('change', () => {
     if (store.state.settings.appearance === 'auto') {
       changeAppearance(store.state.settings.appearance);
+      changeThemeColor(store.state.settings.themeColor);
     }
   });
 

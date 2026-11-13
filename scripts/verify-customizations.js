@@ -120,9 +120,39 @@ const checks = [
     /height: 100%[\s\S]*object-position: center/,
   ],
   [
-    'top-level blurred menus',
+    'shared top-level glass menus',
     'src/components/ContextMenu.vue',
-    /<Teleport to="body">/,
+    /<Teleport to="body">[\s\S]*background: var\(--color-context-menu-bg\)[\s\S]*backdrop-filter: saturate\(190%\) blur\(32px\)/,
+  ],
+  [
+    'glass menus respect transparency and contrast preferences',
+    'src/components/ContextMenu.vue',
+    /prefers-reduced-transparency: reduce[\s\S]*forced-colors: active[\s\S]*backdrop-filter: none/,
+  ],
+  [
+    'fork owns the release repository',
+    'src/config/repository.js',
+    /owner: 'Ranshen1209',[\s\S]*repo: 'YesPlayMusic'/,
+  ],
+  [
+    'explicit fork update feed and release page',
+    'src/background.js',
+    /setFeedURL\(repository\)[\s\S]*openExternal\(releasesUrl\)/,
+  ],
+  [
+    'packaging uses the same release repository',
+    'vue.config.js',
+    /publish: \[[\s\S]*\.\.\.repository/,
+  ],
+  [
+    'upstream cloud lyrics use the AMLL renderer',
+    'src/views/lyrics.vue',
+    /getCloudLyric\(trackId, userId\)[\s\S]*parseLyric\(data\.lrc\)/,
+  ],
+  [
+    'closing lyrics exits fullscreen',
+    'src/views/lyrics.vue',
+    /showLyrics\(show\)[\s\S]*this\.exitFullscreen\(\)/,
   ],
   [
     'unsigned macOS release with single CI publisher',

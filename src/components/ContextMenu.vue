@@ -78,9 +78,9 @@ export default {
   min-width: 136px;
   max-width: 240px;
   list-style: none;
-  background: rgba(255, 255, 255, 0.84);
+  background: var(--color-context-menu-bg);
   box-shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.24);
-  border: 1px solid rgba(255, 255, 255, 0.58);
+  border: 1px solid var(--color-context-menu-border);
   -webkit-backdrop-filter: saturate(190%) blur(32px);
   backdrop-filter: saturate(190%) blur(32px);
   border-radius: 12px;
@@ -98,16 +98,31 @@ export default {
 }
 
 [data-theme='dark'] .menu {
-  background: rgba(28, 28, 30, 0.82);
-  border-color: rgba(255, 255, 255, 0.14);
   box-shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.52);
-  -webkit-backdrop-filter: saturate(160%) blur(28px) brightness(72%);
-  backdrop-filter: saturate(160%) blur(28px) brightness(72%);
 }
 
-@supports (-moz-appearance: none) {
+// 支持背景模糊的浏览器统一使用玻璃材质，不再按浏览器品牌强制实色。
+@supports not (
+  (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+) {
   .menu {
-    background-color: var(--color-body-bg) !important;
+    background: var(--color-body-bg);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce), (forced-colors: active) {
+  .menu {
+    background: var(--color-body-bg);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .menu {
+    background: Canvas;
+    border-color: CanvasText;
+    box-shadow: none;
   }
 }
 

@@ -148,6 +148,7 @@ export default {
     logout: '登出',
     language: '语言',
     lyric: '歌词',
+    cache: '缓存',
     others: '其他',
     customization: '自定义',
     MusicGenrePreference: {
@@ -227,6 +228,13 @@ export default {
       auto: '自动',
       light: '浅色',
       dark: '深色',
+    },
+    themeColor: {
+      text: '主题颜色',
+      default: '原始颜色',
+      sunset: '日落渐变',
+      ocean: '海洋渐变',
+      forest: '森林渐变',
     },
     trayIcon: {
       text: '托盘图标颜色',

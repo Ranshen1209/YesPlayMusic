@@ -53,7 +53,8 @@
   - YouTube 音源需自行安装 `yt-dlp`。
 - ~~✔️ 每日自动签到（手机端和电脑端同时签到）~~
 - 🌚 Light/Dark Mode 自动切换
-- 👆 支持 Touch Bar
+- 👆 支持 Touch Bar 歌词显示
+  ![Touch Bar 歌词][touchbar-screenshot]
 - 🖥️ 支持 PWA，可在 Chrome/Edge 里点击地址栏右边的 ➕ 安装到电脑
 - 🟥 支持 Last.fm Scrobble
 - ☁️ 支持音乐云盘
@@ -69,7 +70,7 @@ Windows 11 22H2（build 22621）及以上可在设置中开启「毛玻璃背景
 
 Electron 版本由 [@hawtim](https://github.com/hawtim) 和 [@qier222](https://github.com/qier222) 适配并维护，支持 macOS、Windows、Linux。
 
-访问本项目的 [Releases](https://github.com/qier222/YesPlayMusic/releases)
+访问本分支的 [Releases](https://github.com/Ranshen1209/YesPlayMusic/releases)
 页面下载安装包。
 
 - macOS 用户可以通过 Homebrew 来安装：`brew install --cask yesplaymusic`
@@ -296,3 +297,4 @@ API 源代码来自 [Binaryify/NeteaseCloudMusicApi](https://github.com/Binaryif
 [library-screenshot]: images/library.png
 [library-dark-screenshot]: images/library-dark.png
 [search-screenshot]: images/search.png
+[touchbar-screenshot]: images/touchbar.png

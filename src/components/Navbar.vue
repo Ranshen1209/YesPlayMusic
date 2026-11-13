@@ -92,6 +92,7 @@ import Win32Titlebar from '@/components/Win32Titlebar.vue';
 import LinuxTitlebar from '@/components/LinuxTitlebar.vue';
 import ContextMenu from '@/components/ContextMenu.vue';
 import ButtonIcon from '@/components/ButtonIcon.vue';
+import { repositoryUrl } from '@/config/repository';
 
 export default {
   name: 'Navbar',
@@ -165,7 +166,7 @@ export default {
       this.$router.push({ name: 'settings' });
     },
     toGitHub() {
-      window.open('https://github.com/qier222/YesPlayMusic');
+      window.open(repositoryUrl);
     },
     toLogin() {
       if (process.env.IS_ELECTRON === true) {

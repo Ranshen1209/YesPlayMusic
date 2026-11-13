@@ -245,12 +245,18 @@ import { mapActions, mapMutations, mapState } from 'vuex';
 import VueSlider from 'vue-slider-component';
 import ButtonIcon from '@/components/ButtonIcon.vue';
 import ContextMenu from '@/components/ContextMenu.vue';
-import { getLyric } from '@/api/track';
+import { getCloudLyric, getLyric } from '@/api/track';
 import { formatTrackTime } from '@/utils/common';
-import { copyLyric, lyricParser } from '@/utils/lyrics';
+import { copyLyric, lyricParser, parseLyric } from '@/utils/lyrics';
 import { isAccountLoggedIn } from '@/utils/auth';
 import { getListSourcePath, hasListSource } from '@/utils/playList';
 import locale from '@/locale';
+import { isMac } from '@/utils/platform';
+
+const ipcRenderer =
+  process.env.IS_ELECTRON === true && isMac
+    ? window.require('electron').ipcRenderer
+    : null;
 
 export default {
   name: 'Lyrics',
@@ -271,6 +277,7 @@ export default {
       progressTimer: null,
       lyricResyncTimer: null,
       clockTimer: null,
+      touchBarLyric: null,
       date: this.formatTime(new Date()),
       isFullscreen: !!document.fullscreenElement,
       rightClickLyric: null,
@@ -390,13 +397,20 @@ export default {
       this.clearLyrics();
       this.getLyric();
     },
+    currentTime() {
+      this.updateTouchBarLyric();
+    },
+    lyric() {
+      this.updateTouchBarLyric();
+    },
     showLyrics(show) {
       if (show) {
         this.startProgressSync();
         this.$store.commit('enableScrolling', false);
       } else {
-        this.stopProgressSync();
+        if (!ipcRenderer) this.stopProgressSync();
         this.$store.commit('enableScrolling', true);
+        this.exitFullscreen();
       }
     },
   },
@@ -426,7 +440,7 @@ export default {
     );
   },
   mounted() {
-    if (this.showLyrics) this.startProgressSync();
+    if (this.showLyrics || ipcRenderer) this.startProgressSync();
   },
   beforeUnmount() {
     this.cleanup();
@@ -438,6 +452,7 @@ export default {
     ...mapMutations(['toggleLyrics', 'updateModal']),
     ...mapActions(['likeATrack', 'showToast']),
     cleanup() {
+      this.exitFullscreen();
       clearInterval(this.clockTimer);
       clearTimeout(this.lyricResyncTimer);
       this.stopProgressSync();
@@ -486,6 +501,18 @@ export default {
     getLyric() {
       if (!this.currentTrack.id) return Promise.resolve(false);
       const trackId = this.currentTrack.id;
+      const userId = this.$store.state.data.user?.userId;
+      if (this.currentTrack.pc && !this.currentTrack.cd && userId) {
+        return getCloudLyric(trackId, userId).then(data => {
+          if (trackId !== this.currentTrack.id) return false;
+          this.lyric =
+            typeof data?.lrc === 'string' ? parseLyric(data.lrc) : [];
+          this.tlyric = [];
+          this.romalyric = [];
+          this.lyricType = 'translation';
+          return this.lyric.length > 0;
+        });
+      }
       return getLyric(trackId).then(data => {
         if (trackId !== this.currentTrack.id) return false;
         if (!data?.lrc?.lyric) {
@@ -527,6 +554,17 @@ export default {
       this.tlyric = [];
       this.romalyric = [];
       this.rightClickLyric = null;
+    },
+    updateTouchBarLyric() {
+      if (!ipcRenderer) return;
+      let text = '';
+      for (const line of this.lyric) {
+        if (line.time * 1000 > this.currentTime) break;
+        text = line.content;
+      }
+      if (text === this.touchBarLyric) return;
+      this.touchBarLyric = text;
+      ipcRenderer.send('updateLyric', { lyric: text });
     },
     clickLyricLine(event) {
       const line = this.amllLyricLines[event.lineIndex];
@@ -575,9 +613,14 @@ export default {
     },
     fullscreen() {
       if (document.fullscreenElement) {
-        document.exitFullscreen();
+        this.exitFullscreen();
       } else {
         document.documentElement.requestFullscreen();
+      }
+    },
+    exitFullscreen() {
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
       }
     },
     addToPlaylist() {
